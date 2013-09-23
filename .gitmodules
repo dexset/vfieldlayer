@@ -1,3 +1,12 @@
 [submodule "desgui"]
 	path = desgui
 	url = git@github.com:dexset/desgui.git
+[submodule "desgl"]
+	path = desgl
+	url = git@github.com:dexset/desgl.git
+[submodule "desmath"]
+	path = desmath
+	url = git@github.com:dexset/desmath.git
+[submodule "desutil"]
+	path = desutil
+	url = git@github.com:dexset/desutil.git
