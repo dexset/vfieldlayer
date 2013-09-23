@@ -1,0 +1,3 @@
+[submodule "desgui"]
+	path = desgui
+	url = git@github.com:dexset/desgui.git
