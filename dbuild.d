@@ -147,7 +147,7 @@ int submoduleBuild( string[] args )
     foreach( name, func; submodules )
     {
         stdout.writefln( "Building submodule '%s'...", name );
-        auto br = func( args );
+        auto br = func( args.dup );
         if( !br.success )
         {
             stderr.writefln( "\nBuild submodule '%s' failed!\n", name );

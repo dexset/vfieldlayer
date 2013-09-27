@@ -63,18 +63,21 @@ int main( string[] args )
     string[] versionflags;
 
     string[] dargs = args.dup;
+    bool unittestflag = false;
 
     getopt( dargs,
             config.passThrough,
-            "name|n", &projectname,
-            "bindir", &bindir,
-            "debug", &debugflags,
-            "version", &versionflags,
-            "flag", &optflags,
-            "opt|O",    &release,
+            "name|n",    &projectname,
+            "bindir",    &bindir,
+            "debug",     &debugflags,
+            "version",   &versionflags,
+            "unittest",  &unittestflag,
+            "flag",      &optflags,
+            "release|O", &release,
           );
 
     foreach( of; optflags ) flags ~= of;
+    if( unittestflag ) flags ~= "-unittest";
     if( debugflags.length ) flags ~= "-gc";
     foreach( df; debugflags ) flags ~= "-debug=" ~ df;
     foreach( vf; versionflags ) flags ~= "-version=" ~ vf;
@@ -92,7 +95,7 @@ int main( string[] args )
     }
     if( !checkDir( bindir, cine ) ) return 1;
 
-    if( !submoduleBuild( args.dup ) ) 
+    if( !submoduleBuild( args ) ) 
     {
         foreach( alf; sm_flags )
             flags ~= alf.list;
