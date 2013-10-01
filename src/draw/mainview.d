@@ -9,7 +9,7 @@ class MainView : Widget
     {
         super( null );
 
-        info.path = data_path;
+        info.datapath = data_path;
         info.font = "font/gost_a.ttf";
         
         keyboard.connectAlways( (p, k){ if( k.key == 27 ) haltSignal(); });
