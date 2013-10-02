@@ -1,0 +1,16 @@
+{
+    "name": "vflayer",
+    "targetPath": "bin",
+    "targetType": "executable",
+    "sourcePaths": [ "src" ],
+
+    "dependencies": 
+    {
+        "desutil": "~master",
+        "desmath": "~master",
+        "desgl":   "~master",
+        "desgui":  "~master",
+        "derelict": "~master"
+    }
+}
+
