@@ -158,7 +158,7 @@ void prepare()
 
     glDisable( GL_DEPTH_TEST );
 
-    float alpha = 0.9;
+    float mbcoef = 0.9;
 
     void drawobj()
     {
@@ -170,9 +170,9 @@ void prepare()
     {
         glClear( GL_COLOR_BUFFER_BIT );
 
-        drawobj();
-        mbshdr.setUniform!float( "alpha", alpha );
+        mbshdr.setUniform!float( "coef", mbcoef );
         mblur[1].draw();
+        drawobj();
 
     });
 
@@ -180,9 +180,9 @@ void prepare()
     {
         glClear( GL_COLOR_BUFFER_BIT );
 
-        drawobj();
-        mbshdr.setUniform!float( "alpha", alpha );
+        mbshdr.setUniform!float( "coef", mbcoef );
         mblur[0].draw();
+        drawobj();
 
     });
 
@@ -191,7 +191,7 @@ void prepare()
         glClearColor( 0,0,0,0 );
         glClear( GL_COLOR_BUFFER_BIT );
 
-        mbshdr.setUniform!float( "alpha", 1 );
+        mbshdr.setUniform!float( "coef", 1 );
         mblur[use_blur].draw(); 
     });
 }
