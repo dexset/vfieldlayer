@@ -22,6 +22,8 @@ SDL_GLContext context;
 enum TITLE = "gl test";
 ivec2 size = ivec2( 800, 600 );
 
+ViewportStateCtrl viewstate;
+
 void init()
 {
     DerelictSDL2.load();
@@ -59,16 +61,15 @@ void init()
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
     //glEnable( GL_DEPTH_TEST );
-    //glEnable( GL_SCISSOR_TEST );
+    glEnable( GL_SCISSOR_TEST );
 
-    glViewport( 0, 0, size.x, size.y );
+    viewstate = new ViewportStateCtrl( irect( ivec2(0,0),size ) );
 }
 
 class MyObj: GLObj!()
 {
 protected:
     GLVBO pos, col;
-    ShaderProgram shader;
 
     ivec2 winsize = ivec2( 800, 600 );
 
@@ -101,14 +102,13 @@ protected:
     }
 
 public:
-    this( ShaderProgram sp, int posloc, int colloc )
+    this( int posloc, int colloc )
     {
-        shader = sp;
 
         pos = new GLVBO( [ 0.0f, 0.0f, 0.5f, 0.5f ] );
         setAttribPointer( pos, posloc, 2, GL_FLOAT );
 
-        col = new GLVBO( [ 1.0f, 0.0f, 0.0f, 0.8f, 0.0f, 1.0f, 0.0f, 1.0f ] );
+        col = new GLVBO( [ 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f ] );
         setAttribPointer( col, colloc, 4, GL_FLOAT );
 
         draw.connect( () { glDrawArrays( GL_LINES, 0, 2 ); } );
@@ -140,6 +140,12 @@ ShaderProgram shader, fxshdr, mbshdr;
 
 size_t objsz = 20;
 
+void drawobj()
+{
+    shader.use(); 
+    foreach( o; obj ) o.draw(); 
+}
+
 void prepare()
 {
     shader = new ShaderProgram( SS_SIMPLE );
@@ -147,67 +153,93 @@ void prepare()
     auto dcolloc = shader.getAttribLocation( "color" );
 
     foreach( n; 0 .. objsz ^^ 2 )
-        obj ~= new MyObj( shader, dposloc, dcolloc );
+        obj ~= new MyObj( dposloc, dcolloc );
 
     fxshdr = new ShaderProgram( SS_WINSZ_SIMPLE_FBO_FX );
-    mbshdr = new ShaderProgram( SS_WINSZ_SIMPLE_FBO );
+    //mbshdr = new ShaderProgram( SS_WINSZ_SIMPLE_FBO );
     auto fposloc = fxshdr.getAttribLocation( "vertex" );
     auto fuvloc  = fxshdr.getAttribLocation( "uv" );
-    auto fwszloc = fxshdr.getUniformLocation( "winsize" );
-    auto fttuloc = fxshdr.getUniformLocation( "ttu" );
-    fxfbo = new GLFBODraw!()( fxshdr, fposloc, fuvloc, fwszloc, fttuloc );
-    mblur[0] = new GLFBODraw!()( mbshdr, fposloc, fuvloc, fwszloc, fttuloc );
-    mblur[1] = new GLFBODraw!()( mbshdr, fposloc, fuvloc, fwszloc, fttuloc );
+    fxfbo = new GLFBODraw!()( fposloc, fuvloc );
+    //mblur[0] = new GLFBODraw!()( fposloc, fuvloc );
+    //mblur[1] = new GLFBODraw!()( fposloc, fuvloc );
     //mbshdr.setUniform!float( "alpha", 1 );
 
     glDisable( GL_DEPTH_TEST );
 
-    float mbcoef = 0.9;
+    float mbcoef = 0.92;
 
-    void drawobj()
-    {
-        shader.use(); 
-        foreach( o; obj ) o.draw(); 
-    }
+    //mblur[0].render.connect( () 
+    //{
+    //    glClear( GL_COLOR_BUFFER_BIT );
 
-    mblur[0].render.connect( () 
-    {
-        glClear( GL_COLOR_BUFFER_BIT );
+    //    mbshdr.setUniform!float( "coef", mbcoef );
+    //    mblur[1].draw();
+    //    drawobj();
 
-        mbshdr.setUniform!float( "coef", mbcoef );
-        mblur[1].draw();
-        drawobj();
+    //});
 
+    //mblur[1].render.connect( () 
+    //{
+    //    glClear( GL_COLOR_BUFFER_BIT );
+
+    //    mbshdr.setUniform!float( "coef", mbcoef );
+    //    mblur[0].draw();
+    //    drawobj();
+
+    //});
+
+    fxfbo.render.addBegin( ()
+    { 
+        viewstate.push(); 
+        viewstate.set( irect( ivec2(0,0), fxfbo.fbo.size ) );
     });
 
-    mblur[1].render.connect( () 
+    fxfbo.render.addEnd( ()
     {
-        glClear( GL_COLOR_BUFFER_BIT );
-
-        mbshdr.setUniform!float( "coef", mbcoef );
-        mblur[0].draw();
-        drawobj();
-
+        viewstate.pull();
     });
 
     fxfbo.render.connect( () 
     { 
-        glClearColor( 0,0,0,0 );
+        glClearColor( 0,0,0,1 );
         glClear( GL_COLOR_BUFFER_BIT );
 
-        mbshdr.setUniform!float( "coef", 1 );
-        mblur[use_blur].draw(); 
-        //drawobj();
+        //mbshdr.setUniform!float( "coef", 1 );
+        //mblur[use_blur].draw(); 
+        drawobj();
+    });
+
+    //void mbdrawbegin()
+    //{
+    //    mbshdr.use();
+    //    mbshdr.setUniform!int( "ttu", GL_TEXTURE0 );
+    //}
+
+    auto fwszloc = fxshdr.getUniformLocation( "winsize" );
+    auto fttuloc = fxshdr.getUniformLocation( "ttu" );
+    //mblur[0].draw.addBegin( &mbdrawbegin );
+    //mblur[1].draw.addBegin( &mbdrawbegin );
+
+    fxfbo.fbo.resize( ivec2( 400, 400 ) );
+    fxfbo.obj.reshape( irect( 0, 0, 400, 400 ) );
+    //mblur[0].fbo.resize( ivec2( 100, 100 ) );
+    //mblur[1].fbo.resize( ivec2( 100, 100 ) );
+
+    fxfbo.draw.addBegin( ()
+    { 
+        fxshdr.use(); 
+        fxshdr.setUniformVec( fwszloc, vec2( fxfbo.fbo.size ) );
+        fxshdr.setUniform!int( fttuloc, GL_TEXTURE0 );
     });
 }
 
 void idle() 
 { 
     import std.random;
-    auto st = 1.0f / objsz;
+    auto st = 1.98f / objsz;
     foreach( x; 0 .. objsz )
         foreach( y; 0 .. objsz )
-            obj[y*objsz+x].idle( vec2(x,y)*st - vec2(0.5,0.5), x+y*0.05, 0.15 );
+            obj[y*objsz+x].idle( vec2(x,y)*st - vec2(0.99,0.99), x+y*0.05, 0.15 );
 }
 
 void draw()
@@ -216,8 +248,10 @@ void draw()
     glClearDepth( 1 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    use_blur = use_blur ? 0 : 1;
-    mblur[use_blur].render(); 
+    //drawobj();
+
+    //use_blur = use_blur ? 0 : 1;
+    //mblur[use_blur].render(); 
 
     fxfbo.render();
     fxfbo.draw();
@@ -226,10 +260,13 @@ void draw()
 void resize( in ivec2 sz )
 {
     size = sz;
-    fxfbo.reshape( irect( 0, 0, size.x, size.y ) );
-    mblur[0].reshape( irect( 0, 0, size.x, size.y ) );
-    mblur[1].reshape( irect( 0, 0, size.x, size.y ) );
-    glViewport( 0, 0, size.x, size.y );
+    //fxfbo.obj.reshape( irect( 0, 0, size.x, size.y ) );
+    //fxfbo.fbo.resize( sz );
+    //mblur[0].obj.reshape( irect( 0, 0, size.x, size.y ) );
+    //mblur[1].obj.reshape( irect( 0, 0, size.x, size.y ) );
+    viewstate.set( irect( 0,0,size.x,size.y ) );
+    viewstate.sub( irect( 40,40,300,300 ) );
+    viewstate.sub( irect( -40,-40,300,300 ) );
 }
 
 bool eventProcess()
@@ -289,3 +326,5 @@ void testgl_main( string[] args )
     while( eventProcess() ){}
     destroy();
 }
+
+void main( string[] args ) { testgl_main( args ); }
