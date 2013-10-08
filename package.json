@@ -8,8 +8,8 @@
     {
         "desutil": "~master",
         "desmath": "~master",
-        "desgl":   "~master",
-        "desgui":  "~master",
+        "desgl": "~master",
+        "desgui": "~master",
         "derelict": "~master"
     }
 }
