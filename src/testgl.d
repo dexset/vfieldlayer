@@ -317,7 +317,6 @@ void destroy()
 
     if( SDL_Quit !is null ) SDL_Quit();
 }
-}
 
 void testgl_main( string[] args )
 {
@@ -327,4 +326,6 @@ void testgl_main( string[] args )
     destroy();
 }
 
-void main( string[] args ) { testgl_main( args ); }
+}
+
+//void main( string[] args ) { testgl_main( args ); }
