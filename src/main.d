@@ -12,6 +12,8 @@ import desgl.object,
        desgl.ssready,
        desgl.fbo;
 
+import desutil.helpers;
+
 import std.stdio;
 
 import desgui.base.winfo;
