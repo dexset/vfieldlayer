@@ -8,6 +8,8 @@ import derelict.opengl3.gl3;
 import desmath.types.vector,
        desmath.types.rect;
 
+import desutil.helpers;
+
 import desgl.object,
        desgl.shader,
        desgl.helpers,
