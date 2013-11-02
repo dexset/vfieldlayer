@@ -11,6 +11,8 @@ import desmath.types.vector,
 import desgl.object,
        desgl.shader,
        desgl.helpers,
+       desgl.texture,
+       desgl.draw.rectshape,
        desgl.ssready,
        desgl.fbo;
 
@@ -22,26 +24,47 @@ import desgui.base.winfo;
 import desgui.base.widget;
 import desgui.ready.button;
 
-import desgl.texture;
 
 class MainView: Widget
 {
+    GLTexture2D tex;
+    ColorTexRect plane;
+
     this( WidgetInfo wi )
     {
         super( wi );
         
         ILuint Im;
+
         ilGenImages( 1, &Im );
+
         ilBindImage( Im );
+
         if( ilLoadImage( "data/images/im1.jpg" ) == false )
             stderr.writeln( "Error loading image!" );
+
         stderr.writeln( "Image loaded" );
+
         int w = ilGetInteger( IL_IMAGE_WIDTH );
         int h = ilGetInteger( IL_IMAGE_HEIGHT );
 
         stderr.writeln( w, "x", h );
-        auto Tex = new GLTexture2D;
-        //Tex.image( ivec2( w, h ), GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, ilGetData() );
+        tex = new GLTexture2D;
+        tex.image( ivec2( w, h ), GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, ilGetData() );
+
+        auto ploc = info.shader.getAttribLocation( "vertex" );
+        auto cloc = info.shader.getAttribLocation( "color" );
+        auto tloc = info.shader.getAttribLocation( "uv" );
+
+        plane = new ColorTexRect( ploc, cloc, tloc );
+        plane.reshape( irect( 500, 100, 400, 200 ) );
+
+        draw.connect({ 
+            info.shader.setUniform!int( "ttu", GL_TEXTURE0 );
+            info.shader.setUniform!int( "use_texture", 2 );
+            tex.bind();
+            plane.draw();
+        });
 
         auto bb = new SimpleButton( this, irect( 50, 50, 300, 500 ) );
 
@@ -177,9 +200,14 @@ void mouse_wheel_eh( in ivec2 mpos, in SDL_MouseWheelEvent ev )
 
 ivec2 mpos = ivec2(0,0);
 
+import std.stdio;
+
+void log(T...)( string fmt, T args ) { stderr.writefln( fmt, args ); }
+
 bool eventProcess()
 {
     SDL_Event event;
+
     while( SDL_PollEvent(&event) )
     {
         switch( event.type )
