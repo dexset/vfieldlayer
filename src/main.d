@@ -3,6 +3,8 @@ import desgui.base.widget;
 import derelict.sdl2.sdl;
 import derelict.opengl3.gl3;
 
+import derelict.devil.il;
+
 import desmath.types.vector,
        desmath.types.rect;
 
@@ -20,11 +22,26 @@ import desgui.base.winfo;
 import desgui.base.widget;
 import desgui.ready.button;
 
+import desgl.texture;
+
 class MainView: Widget
 {
     this( WidgetInfo wi )
     {
         super( wi );
+        
+        ILuint Im;
+        ilGenImages( 1, &Im );
+        ilBindImage( Im );
+        if( ilLoadImage( "data/images/im1.jpg" ) == false )
+            stderr.writeln( "Error loading image!" );
+        stderr.writeln( "Image loaded" );
+        int w = ilGetInteger( IL_IMAGE_WIDTH );
+        int h = ilGetInteger( IL_IMAGE_HEIGHT );
+
+        stderr.writeln( w, "x", h );
+        auto Tex = new GLTexture2D;
+        //Tex.image( ivec2( w, h ), GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, ilGetData() );
 
         auto bb = new SimpleButton( this, irect( 50, 50, 300, 500 ) );
 
@@ -51,6 +68,9 @@ void init()
 {
     DerelictSDL2.load();
     DerelictGL3.load();
+
+    DerelictIL.load();
+    ilInit();
 
     if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
         throw new Exception( "Couldn't init SDL: " ~ toDString(SDL_GetError()) );
