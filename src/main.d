@@ -67,17 +67,7 @@ class MainView: Widget
             plane.draw();
         });
 
-        //auto bb = new SimpleButton( this, irect( 50, 50, 200, 500 ) );
-
-        bool btn_state = true;
-        auto btn = new SimpleButton( this, irect( 25, 10, 200, 50 ), 
-                "Save"w, {} );
-        btn.onClick.connect( 
-                { 
-                    btn_state = !btn_state; 
-                    //btn.label.setText( ( btn_state ? "hello world"w : "привет мир"w ) ); 
-                    SaveFile( "data.dvf" );
-                }       );
+        auto btn = new SimpleButton( this, irect( 25, 10, 200, 50 ), "Save"w, { SaveFile( "data.dvf" ); } );
 
         reshape( rect );
         update();
