@@ -24,6 +24,23 @@ import desgui.base.winfo;
 import desgui.base.widget;
 import desgui.ready.button;
 
+import dvf;
+
+DVF_FileHeader fhead;
+DVF_FileMeta fmeta;
+DVF_LayerHeader imhead;
+ulong imsz;
+ubyte[] imdata;
+
+void SaveFile( string fname )
+{
+    auto f = File( fname, "wb" );
+    f.write( fhead );
+    f.write( fmeta );
+    f.write( imhead );
+    f.write( imsz );
+    f.write( imdata );
+}
 
 class MainView: Widget
 {
@@ -33,31 +50,15 @@ class MainView: Widget
     this( WidgetInfo wi )
     {
         super( wi );
-        
-        ILuint Im;
-
-        ilGenImages( 1, &Im );
-
-        ilBindImage( Im );
-
-        if( ilLoadImage( "data/images/im1.jpg" ) == false )
-            stderr.writeln( "Error loading image!" );
-
-        stderr.writeln( "Image loaded" );
-
-        int w = ilGetInteger( IL_IMAGE_WIDTH );
-        int h = ilGetInteger( IL_IMAGE_HEIGHT );
-
-        stderr.writeln( w, "x", h );
         tex = new GLTexture2D;
-        tex.image( ivec2( w, h ), GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, ilGetData() );
+        tex.image( ivec2( imhead.res[0], imhead.res[1] ), GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, imdata.ptr );
 
         auto ploc = info.shader.getAttribLocation( "vertex" );
         auto cloc = info.shader.getAttribLocation( "color" );
         auto tloc = info.shader.getAttribLocation( "uv" );
 
         plane = new ColorTexRect( ploc, cloc, tloc );
-        plane.reshape( irect( 500, 100, 400, 200 ) );
+        plane.reshape( irect( 10, 10, imhead.res[0], imhead.res[1] ) );
 
         draw.connect({ 
             info.shader.setUniform!int( "ttu", GL_TEXTURE0 );
@@ -66,12 +67,17 @@ class MainView: Widget
             plane.draw();
         });
 
-        auto bb = new SimpleButton( this, irect( 50, 50, 300, 500 ) );
+        //auto bb = new SimpleButton( this, irect( 50, 50, 200, 500 ) );
 
         bool btn_state = true;
-        auto btn = new SimpleButton( bb, irect( -10, -5, 320, 40 ), 
-                "hello world"w, {} );
-        btn.onClick.connect( { btn_state = !btn_state; btn.label.setText( ( btn_state ? "hello world"w : "привет мир"w ) ); } );
+        auto btn = new SimpleButton( this, irect( 25, 10, 200, 50 ), 
+                "Save"w, {} );
+        btn.onClick.connect( 
+                { 
+                    btn_state = !btn_state; 
+                    //btn.label.setText( ( btn_state ? "hello world"w : "привет мир"w ) ); 
+                    SaveFile( "data.dvf" );
+                }       );
 
         reshape( rect );
         update();
@@ -137,6 +143,38 @@ void prepare( string[] args )
 
     info.datapath = buildNormalizedPath( dirName(args[0]), "..", "data" );
     info.font = "font/default.ttf";
+
+    fhead.type = "DVF ";
+    fhead.major = 0;
+    fhead.minor = 1;
+    fmeta.layers = 1;
+
+    ILuint im;
+
+    ilGenImages( 1, &im );
+
+    ilBindImage( im );
+
+    if( ilLoadImage( "data/images/im1.jpg" ) == false )
+        stderr.writeln( "Error loading image!" );
+
+    stderr.writeln( "Image loaded" );
+
+    imhead.id = 0;
+    imhead.name = cast(char[256])("Image");
+    imhead.comps = 3;
+    imhead.type = DVF_TYPE_UBYTE;
+    imhead.pos[] = 0;
+    imhead.res[0] = cast(ushort)(ilGetInteger( IL_IMAGE_WIDTH  ));
+    imhead.res[1] = cast(ushort)(ilGetInteger( IL_IMAGE_HEIGHT ));
+    imhead.mask_id = -1;
+    fmeta.res = imhead.res;
+    ubyte* rawimdata = ilGetData();
+    imsz = imhead.res[0]*imhead.res[1]*3;
+    imdata.length = imsz;
+
+    foreach( i, ref d; imdata )
+        d = rawimdata[i];
 
     view = new MainView( info );
 }
