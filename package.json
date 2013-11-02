@@ -6,6 +6,7 @@
 
     "dependencies": 
     {
+        "dvf": "~master",
         "desutil": "~master",
         "desmath": "~master",
         "desgl": "~master",

@@ -3,12 +3,16 @@ import desgui.base.widget;
 import derelict.sdl2.sdl;
 import derelict.opengl3.gl3;
 
+import derelict.devil.il;
+
 import desmath.types.vector,
        desmath.types.rect;
 
 import desgl.object,
        desgl.shader,
        desgl.helpers,
+       desgl.texture,
+       desgl.draw.rectshape,
        desgl.ssready,
        desgl.fbo;
 
@@ -20,18 +24,60 @@ import desgui.base.winfo;
 import desgui.base.widget;
 import desgui.ready.button;
 
+import dvf;
+
+DVF_FileHeader fhead;
+DVF_FileMeta fmeta;
+DVF_LayerHeader imhead;
+ulong imsz;
+ubyte[] imdata;
+
+void SaveFile( string fname )
+{
+    auto f = File( fname, "wb" );
+    f.write( fhead );
+    f.write( fmeta );
+    f.write( imhead );
+    f.write( imsz );
+    f.write( imdata );
+}
+
 class MainView: Widget
 {
+    GLTexture2D tex;
+    ColorTexRect plane;
+
     this( WidgetInfo wi )
     {
         super( wi );
+        tex = new GLTexture2D;
+        tex.image( ivec2( imhead.res[0], imhead.res[1] ), GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, imdata.ptr );
 
-        auto bb = new SimpleButton( this, irect( 50, 50, 300, 500 ) );
+        auto ploc = info.shader.getAttribLocation( "vertex" );
+        auto cloc = info.shader.getAttribLocation( "color" );
+        auto tloc = info.shader.getAttribLocation( "uv" );
+
+        plane = new ColorTexRect( ploc, cloc, tloc );
+        plane.reshape( irect( 10, 10, imhead.res[0], imhead.res[1] ) );
+
+        draw.connect({ 
+            info.shader.setUniform!int( "ttu", GL_TEXTURE0 );
+            info.shader.setUniform!int( "use_texture", 2 );
+            tex.bind();
+            plane.draw();
+        });
+
+        //auto bb = new SimpleButton( this, irect( 50, 50, 200, 500 ) );
 
         bool btn_state = true;
-        auto btn = new SimpleButton( bb, irect( -10, -5, 320, 40 ), 
-                "hello world"w, {} );
-        btn.onClick.connect( { btn_state = !btn_state; btn.label.setText( ( btn_state ? "hello world"w : "привет мир"w ) ); } );
+        auto btn = new SimpleButton( this, irect( 25, 10, 200, 50 ), 
+                "Save"w, {} );
+        btn.onClick.connect( 
+                { 
+                    btn_state = !btn_state; 
+                    //btn.label.setText( ( btn_state ? "hello world"w : "привет мир"w ) ); 
+                    SaveFile( "data.dvf" );
+                }       );
 
         reshape( rect );
         update();
@@ -51,6 +97,9 @@ void init()
 {
     DerelictSDL2.load();
     DerelictGL3.load();
+
+    DerelictIL.load();
+    ilInit();
 
     if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
         throw new Exception( "Couldn't init SDL: " ~ toDString(SDL_GetError()) );
@@ -94,6 +143,38 @@ void prepare( string[] args )
 
     info.datapath = buildNormalizedPath( dirName(args[0]), "..", "data" );
     info.font = "font/default.ttf";
+
+    fhead.type = "DVF ";
+    fhead.major = 0;
+    fhead.minor = 1;
+    fmeta.layers = 1;
+
+    ILuint im;
+
+    ilGenImages( 1, &im );
+
+    ilBindImage( im );
+
+    if( ilLoadImage( "data/images/im1.jpg" ) == false )
+        stderr.writeln( "Error loading image!" );
+
+    stderr.writeln( "Image loaded" );
+
+    imhead.id = 0;
+    imhead.name = cast(char[256])("Image");
+    imhead.comps = 3;
+    imhead.type = DVF_TYPE_UBYTE;
+    imhead.pos[] = 0;
+    imhead.res[0] = cast(ushort)(ilGetInteger( IL_IMAGE_WIDTH  ));
+    imhead.res[1] = cast(ushort)(ilGetInteger( IL_IMAGE_HEIGHT ));
+    imhead.mask_id = -1;
+    fmeta.res = imhead.res;
+    ubyte* rawimdata = ilGetData();
+    imsz = imhead.res[0]*imhead.res[1]*3;
+    imdata.length = imsz;
+
+    foreach( i, ref d; imdata )
+        d = rawimdata[i];
 
     view = new MainView( info );
 }
@@ -157,9 +238,14 @@ void mouse_wheel_eh( in ivec2 mpos, in SDL_MouseWheelEvent ev )
 
 ivec2 mpos = ivec2(0,0);
 
+import std.stdio;
+
+void log(T...)( string fmt, T args ) { stderr.writefln( fmt, args ); }
+
 bool eventProcess()
 {
     SDL_Event event;
+
     while( SDL_PollEvent(&event) )
     {
         switch( event.type )
