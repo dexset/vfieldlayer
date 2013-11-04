@@ -5,7 +5,7 @@ void main( string[] args )
 {
     Application.init();
 
-    auto mv = new MainView( "window 1" );
+    auto mv = new MainView( "vflayer" );
     mv.show();
 
     //auto mv2 = new MainView( "window 2" );

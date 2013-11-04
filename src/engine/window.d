@@ -3,6 +3,8 @@ module engine.window;
 import engine.def;
 import engine.application;
 
+import desgl.helpers;
+
 class AppWindow : Widget
 {
 package:
@@ -13,11 +15,16 @@ package:
 
     ivec2 mpos;
 
-    void process()
+    void makeCurrent()
     {
         // TODO: add checking of current window and context
         if( SDL_GL_MakeCurrent( window, context ) < 0 )
             throw new AppException( "SDL fails with make current: " ~ toDString( SDL_GetError() ) );
+    }
+
+    void process()
+    {
+        makeCurrent();
 
         idle();
 
@@ -30,6 +37,7 @@ package:
 
     void window_eh( in SDL_WindowEvent ev )
     {
+        makeCurrent();
         switch( ev.event ) 
         {
             case SDL_WINDOWEVENT_NONE:         break;
@@ -68,6 +76,7 @@ package:
 
     void keyboard_eh( in SDL_KeyboardEvent ev ) 
     { 
+        makeCurrent();
         KeyboardEvent oev;
         oev.pressed = (ev.state == SDL_PRESSED);
         oev.scan = ev.keysym.scancode;
@@ -96,6 +105,7 @@ package:
 
     void mouse_button_eh( in SDL_MouseButtonEvent ev ) 
     { 
+        makeCurrent();
         mpos.x = ev.x;
         mpos.y = ev.y;
 
@@ -118,6 +128,7 @@ package:
 
     void mouse_motion_eh( in SDL_MouseMotionEvent ev ) 
     { 
+        makeCurrent();
         mpos.x = ev.x;
         mpos.y = ev.y;
 
@@ -134,6 +145,7 @@ package:
 
     void mouse_wheel_eh( in SDL_MouseWheelEvent ev )
     {
+        makeCurrent();
         auto me = MouseEvent( MouseEvent.Type.WHEEL, 0 );
         me.data = ivec2( ev.x, ev.y );
         mouse( mpos, me );
@@ -181,7 +193,7 @@ public:
         });
 
         info = new WidgetInfo;
-        info.font = "font/default.ttf";
+        info.font = "font/dejavusansmono.ttf";
 
         super( info );
     }
