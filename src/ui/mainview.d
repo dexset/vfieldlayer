@@ -4,13 +4,17 @@ import engine.window;
 
 import desgui;
 
+import ui.workspace;
+
 class MainView : AppWindow
 {
     this( string title )
     {
         super( title );
 
-        auto btn1 = new SimpleButton( this, irect( 25, 10, 300, 40 ), "button1"w, {} );
-        auto btn2 = new SimpleButton( this, irect( 25, 60, 300, 40 ), "button2"w, {} );
+        auto btn1 = new SimpleButton( this, irect( 5, 5, 200, 30 ), "button1"w, {} );
+        auto btn2 = new SimpleButton( this, irect( 5, 40, 200, 30 ), "button2"w, {} );
+
+        auto ws = new WorkSpace( this, irect( 205, 5, 400, 400 ) );
     }
 }

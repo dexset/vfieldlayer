@@ -103,6 +103,13 @@ package:
         keyboard( mpos, oev );
     }
 
+    void textinput_eh( in SDL_TextInputEvent ev )
+    {
+        import std.utf : toUTF32;
+        auto str = toUTF32( ev.text[0 .. 4].dup );
+        evtext( mpos, TextEvent( str[0] ) );
+    }
+
     void mouse_button_eh( in SDL_MouseButtonEvent ev ) 
     { 
         makeCurrent();
@@ -159,7 +166,7 @@ public:
         window = SDL_CreateWindow( title.ptr,
                                    SDL_WINDOWPOS_UNDEFINED,
                                    SDL_WINDOWPOS_UNDEFINED,
-                                   rect.w, rect.h,
+                                   800, 600,
                                    SDL_WINDOW_OPENGL | 
                                    SDL_WINDOW_HIDDEN |
                                    SDL_WINDOW_RESIZABLE );

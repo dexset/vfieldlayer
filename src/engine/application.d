@@ -67,7 +67,8 @@ private:
                     break;
                 //case SDL_TEXTEDITING: break;
                 case SDL_TEXTINPUT: 
-                    //textinput_eh( event.text );
+                    auto w = selectWindow( event.text.windowID );
+                    if(w) w.textinput_eh( event.text );
                     break;
 
                 case SDL_MOUSEMOTION: 
