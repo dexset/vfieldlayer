@@ -1,7 +1,7 @@
-module engine.window;
+module ui.window;
 
-import engine.def;
-import engine.application;
+import ui.def;
+import ui.application;
 
 import desgl.helpers;
 

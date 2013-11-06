@@ -1,7 +1,7 @@
-module engine.application;
+module ui.application;
 
-import engine.def;
-import engine.window;
+import ui.def;
+import ui.window;
 
 class Application
 {
@@ -118,7 +118,6 @@ private:
         foreach( id, win; windows ) win.process();
 
         return true;
-        //return cast(bool)(--count);
     }
 
 public:

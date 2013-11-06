@@ -1,4 +1,4 @@
-module engine.def;
+module ui.def;
 
 public import derelict.sdl2.sdl;
 public import derelict.opengl3.gl3;
