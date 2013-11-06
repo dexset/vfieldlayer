@@ -1,6 +1,6 @@
 module ui.mainview;
 
-import engine.window;
+import ui.window;
 
 import desgui;
 
