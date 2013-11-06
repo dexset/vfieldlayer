@@ -5,7 +5,7 @@ void main( string[] args )
 {
     Application.init();
 
-    auto mv = new MainView( "vflayer" );
+    auto mv = new MainView( "WWWIwugsdi" );
     mv.show();
 
     Application.run();
