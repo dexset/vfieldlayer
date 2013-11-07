@@ -12,15 +12,18 @@ enum SettingType
     VEC4,
     COL3,
     COL4,
-    STRARR,
-    INTARR
+    STR,
+
+    STR_ARR,
+    INT_ARR,
+    FLOAT_ARR,
 }
 
 interface Setting
 {
     @property 
     {
-        string name() const;
+        wstring name() const;
         SettingType type() const;
         Variant defaultValue() const;
         Variant permissiveRange() const;
@@ -30,13 +33,21 @@ interface Setting
     }
 }
 
+interface SettingObject
+{
+    @property string name() const;
+
+    Setting[] getSettingsList() const;
+    void setSetting( wstring name, Variant val );
+}
+
 class BoolSetting: Setting
 {
     private bool val = false;
 
     public @property
     {
-        abstract string name() const;
+        abstract wstring name() const;
 
         final SettingType type() const
         { return SettingType.BOOL; }

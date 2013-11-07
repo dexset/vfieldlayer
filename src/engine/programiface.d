@@ -1,17 +1,19 @@
 module engine.programiface;
 
 import engine.tempbuffer;
-import engine.workspace;
+import engine.wsdata;
 import engine.viewport;
 
 interface PIDrawTool
 {
     TempBuffer getTempBuffer();
+    //vec2[2] getCurrentVectors();
+    //col4[2] getCurrentColors();
 }
 
 interface PIFilter
 {
-    Workspace getWorkspace();
+    WSData getWorkspace();
 }
 
 interface PIViewTool
