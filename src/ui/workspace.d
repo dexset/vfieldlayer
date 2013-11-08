@@ -39,6 +39,9 @@ private:
     SimpleButton btn;
 
 public:
+    //temp
+    ColorRect shape;
+    //
     this( Widget par, in irect r )
     {
         super( par );
@@ -47,6 +50,21 @@ public:
         auto baserect = irect( 5,5, 100, 30 );
 
         btn = new SimpleButton( this, baserect, "ok btn"w, {} );
+        //temp
+
+        auto ploc = info.shader.getAttribLocation( "vertex" );
+        auto cloc = info.shader.getAttribLocation( "color" );
+        shape = new ColorRect( ploc, cloc );
+        shape.setColor( col4( 0.0f, 0.0f, 1.0f, 0.5f ) );
+        reshape.connect( (r)
+                {
+                   shape.reshape(irect(0, 0, r.size)); 
+                });
+        draw.connect( ()
+                {
+                    shape.draw();
+                } );
+        //
 
         idle.connect( { btn.reshape( irect( baserect * zoom ) ); } );
 
