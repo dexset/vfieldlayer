@@ -1,14 +1,14 @@
 module engine.wsdata;
 
-import engine.layer;
-import engine.tempbuffer;
-import engine.image;
+public import engine.layer;
+public import engine.tempbuffer;
+public import engine.image;
 
 interface WSData
 {
     @property
     {
-        imsize size() const;
+        imsize_t size() const;
         TempBuffer buffer();
         ref Image mask();
         Layer[] layers();

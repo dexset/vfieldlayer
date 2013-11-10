@@ -1,6 +1,7 @@
 module engine.layer;
 
 import engine.setting;
+import engine.image;
 
 import desmath.types.rect;
 
