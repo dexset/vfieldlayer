@@ -10,6 +10,6 @@ interface Viewport
         void offset( in ivec2 );
 
         float scale() const;
-        void scalse( float );
+        void scale( float );
     }
 }

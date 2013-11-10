@@ -6,6 +6,7 @@ import desmath.types.vector;
 import desmath.types.rect;
 
 alias vec!(2,size_t,"wh") imsize_t;
+alias vec!(2,size_t,"xy") imcrd_t;
 
 enum ComponentType
 {
@@ -21,7 +22,7 @@ struct ImageType
     ubyte channels;
 }
 
-struct Image
+final class Image
 {
 private:
     ubyte[] data;
@@ -73,7 +74,6 @@ public:
     }
 
     pure this( in Image img ) { copy( img ); }
-    pure this(this) { data = data.dup; }
 
     pure void copy( in Image img )
     {
@@ -96,6 +96,28 @@ public:
         resetAccessRect();
     }
 
+    void clearLastChanges()
+    {
+        auto ar = accessRect;
+        if( ar == irect( size.w,size.h,-size.w+1,-size.h+1 ) )
+            return;
+
+        foreach( y; ar.y .. ar.y + ar.h )
+        {
+        //    import std.algorithm;
+        //    fill( data[ imsize.w * y * elemSize .. ( imsize.w * y + ar.w ) * elemSize - 1 ], 0 );
+            foreach( ref v; data[ ( imsize.w * y + ar.x ) * elemSize .. 
+                                  ( imsize.w * y + ar.x + ar.w ) * elemSize ] )
+                v = 0;
+            
+        //    foreach( x; ar.x .. ar.x + ar.w )
+        //        foreach( i; 0 .. elemSize )
+        //            data[ ( imsize.w * y + x ) * elemSize + i ] = 0;
+        }
+
+        resetAccessRect();
+    }
+
     @property irect accessRect() const
     {
         return irect( min, max - min + ivec2(1,1) );
@@ -110,8 +132,7 @@ public:
         max = imsize_t( 0, 0 );
     }
 
-    ref T access(T)( in imsize_t pos ) { return access!T( pos.x, pos.y ); }
-
+    ref T access(T)( in imcrd_t pos ) { return access!T( pos.x, pos.y ); }
     ref T access(T)( size_t x, size_t y ) 
     { 
         enforce( T.sizeof == elemSize, "access type size uncompatible with elem size" );
@@ -127,6 +148,16 @@ public:
         return (cast(T[])(data))[ ind ];
     }
 
+    T read(T)( in imcrd_t pos ) const { return read!T( pos.x, pos.y ); }
+    T read(T)( size_t x, size_t y ) const
+    {
+        enforce( T.sizeof == elemSize, "access type size uncompatible with elem size" );
+        size_t ind = imsize.w * y + x;
+        enforce( ind < imsize.w * imsize.h, "Range violation" );
+
+        return (cast(T[])(data))[ ind ];
+    }
+
     @property T[] dup(T)() const 
     { 
         enforce( T.sizeof == elemSize, "access type size uncompatible with elem size" );
@@ -136,10 +167,10 @@ public:
 
 unittest
 {
-    auto img = Image( imsize_t(3,3), ImageType( ComponentType.NORM_FLOAT, 3 ) );
+    auto img = new Image( imsize_t(3,3), ImageType( ComponentType.NORM_FLOAT, 3 ) );
     img.access!col3( 1, 1 ) = col3( 0.1, 0.2, 0.3 );
-    auto val1 = img.access!col3( 1, 1 );
-    auto val2 = img.access!vec3( 1, 1 );
+    auto val1 = img.read!col3( 1, 1 );
+    auto val2 = img.read!vec3( 1, 1 );
     assert( val1 == col3( 0.1, 0.2, 0.3 ) );
     assert( is( typeof(val1) == col3 ) );
     assert( val2 == vec3( 0.1, 0.2, 0.3 ) );
@@ -169,11 +200,32 @@ unittest
     auto vdata = img.dup!vec2;
     assert( vdata[12] == vec2( 10, 15 ) );
 
-    Image img2;
+    auto img2 = new Image( img );
     img2.copy( img );
     img.access!vec2( 2, 1 ) = vec2( 1, 1.4 );
-    assert( img2.access!vec2( 2, 1 ) == vec2( 10, 15 ) );
+    assert( img2.read!vec2( 2, 1 ) == vec2( 10, 15 ) );
 
-    auto img3 = Image( img );
-    assert( img3.access!vec2( 2, 1 ) == vec2( 1, 1.4 ) );
+    auto img3 = new Image( img );
+    assert( img3.read!vec2( 2, 1 ) == vec2( 1, 1.4 ) );
+
+    img3.resetAccessRect();
+    img3.access!vec2( 1, 1 ) = vec2( 3.141592, 2.718281828 );
+    assert( img3.read!vec2( 1, 1 ) == vec2( 3.141592, 2.718281828 ) );
+    assert( img3.read!vec2( 2, 1 ) == vec2( 1, 1.4 ) );
+    img3.clearLastChanges();
+    assert( img3.read!vec2( 1, 1 ) == vec2( 0, 0 ) );
+    assert( img3.read!vec2( 2, 1 ) == vec2( 1, 1.4 ) );
+
+    auto arr = img3.read!(float[2])( 2, 1 );
+    assert( arr[0] == 1 );
+    assert( arr[1] == 1.4f );
+
+    auto fimg = new Image( imsize_t( 40, 40 ), ImageType( ComponentType.NORM_FLOAT, 1 ) );
+    assert( fimg.size == imsize_t( 40,40 ) );
+    fimg.access!float(10,10) = 0.2;
+
+    assert( fimg.read!float(10,10) == 0.2f );
+    fimg.clearLastChanges();
+    assert( fimg.read!float(10,10) == 0.0f );
+
 }
