@@ -2,6 +2,8 @@ module engine.setting;
 
 import std.variant;
 
+import engine.item;
+
 enum SettingType
 {
     BOOL,
@@ -33,10 +35,8 @@ interface Setting
     }
 }
 
-interface SettingObject
+interface SettingObject: Item
 {
-    @property string name() const;
-
     Setting[] getSettingsList() const;
     void setSetting( wstring name, Variant val );
 }

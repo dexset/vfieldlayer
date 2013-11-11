@@ -69,6 +69,7 @@ public:
     pure this( in imsize_t sz, in ImageType imtp, in ubyte[] dt ) 
     { 
         setParams( sz, imtp );
+        enforce( dt.length == sz.w * sz.h * elemSize, "wrong input data length" );
         data = dt.dup;
         resetAccessRect();
     }
@@ -227,5 +228,4 @@ unittest
     assert( fimg.read!float(10,10) == 0.2f );
     fimg.clearLastChanges();
     assert( fimg.read!float(10,10) == 0.0f );
-
 }

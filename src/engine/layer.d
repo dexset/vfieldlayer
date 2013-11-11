@@ -10,10 +10,7 @@ interface Layer: SettingObject
     @property
     {
         irect bbox() const;
-        ref Image image();
-
-        // TODO: const ref
-        Image pic() const;
+        Image image();
 
         bool select() const;
         void select( bool );

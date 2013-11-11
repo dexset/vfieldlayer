@@ -10,8 +10,7 @@ import desgui.base.event;
 
 interface Tool: SettingObject
 {
-    immutable(Image) icon() const;
-    immutable(Image) cursor() const;
+    const(Image) cursor() const;
     void activate();
     void deactivate();
     void mouse_eh( in ivec2 mpos, in MouseEvent me );

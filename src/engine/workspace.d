@@ -2,7 +2,9 @@ module engine.workspace;
 
 import engine.viewport;
 import engine.wsdata;
+import engine.history;
 
+import std.variant;
 import desgui.base.widget;
 
 class Workspace: Viewport, WSData, TempBuffer
@@ -27,8 +29,10 @@ public:
 
     @property
     {
+        wstring name() const { return "ololo"; }
         ivec2 offset() const { return vp_offset; }
         void offset( in ivec2 o ) { vp_offset = o; }
+        const(Image) pic() const { return null; }
 
         float scale() const { return vp_scale; }
         void scale( float sc ) { vp_scale = vp_scale_lim( vp_scale, sc ); }
@@ -37,11 +41,15 @@ public:
 
         TempBuffer buffer() { return this; }
 
-        ref Image mask() { return mask_img; }
+        Image mask() { return mask_img; }
 
         Layer[] layers() { return layers_list; }
     }
 
+    Setting[] getSettingsList() const { return []; }
+    void setSetting( wstring name, Variant val ) {}
+
+    // TempBuffer
     Image[] getTempImages( in ImageType[] it_list )
     {
         Image[] ret;

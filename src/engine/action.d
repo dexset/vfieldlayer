@@ -7,5 +7,5 @@ import std.variant;
 
 interface Action: SettingObject
 {
-    HistoryDelta apply();
+    HistoryItem apply();
 }

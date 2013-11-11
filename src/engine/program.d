@@ -5,21 +5,18 @@ import engine.programiface;
 import engine.tempbuffer;
 import engine.workspace;
 import engine.viewport;
+import engine.wsdata;
 
 class Program: PIFilter, PIDrawTool, PIViewTool
 {
-    TempBuffer getTempBuffer()
-    {
-        return null;
-    }
+private:
 
-    Workspace getWorkspace()
-    {
-        return null;
-    }
+    Workspace[] workspaces;
+    Workspace current_ws;
 
-    Viewport getViewport()
-    {
-        return null;
-    }
+public:
+
+    TempBuffer getTempBuffer() { return current_ws; }
+    WSData getWorkspace() { return current_ws; }
+    Viewport getViewport() { return current_ws; }
 }

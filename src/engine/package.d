@@ -5,6 +5,7 @@ public import engine.drawtool;
 public import engine.filter;
 public import engine.history;
 public import engine.image;
+public import engine.item;
 public import engine.layer;
 public import engine.program;
 public import engine.programiface;
