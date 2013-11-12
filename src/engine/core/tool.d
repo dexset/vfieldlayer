@@ -8,6 +8,7 @@ import engine.core.setting;
 interface Tool: SettingObject
 {
     const(Image) cursor() const;
+    const(Image) effectArea() const;
     void activate();
     void deactivate();
     void mouse_eh( in ivec2 mpos, in MouseEvent me );
