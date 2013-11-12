@@ -1,12 +1,9 @@
-module engine.tool;
+module engine.core.tool;
 
-import desmath.types.vector;
-import desmath.types.map;
-
-import engine.setting;
-import engine.image;
-
-import desgui.base.event;
+public import desmath.types.vector;
+public import engine.core.image;
+public import desgui.base.event;
+import engine.core.setting;
 
 interface Tool: SettingObject
 {

@@ -1,6 +1,6 @@
-module engine.item;
+module engine.core.item;
 
-import engine.image;
+public import engine.core.image;
 
 interface Item
 {

@@ -1,9 +1,9 @@
-module engine.wsdata;
+module engine.core.wsdata;
 
-public import engine.layer;
-public import engine.tempbuffer;
-public import engine.image;
-public import engine.setting;
+public import engine.core.layer;
+public import engine.core.tempbuffer;
+public import engine.core.image;
+public import engine.core.setting;
 
 interface WSData: SettingObject
 {
