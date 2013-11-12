@@ -26,7 +26,7 @@ enum
     ALIGN_JUSTIFY = 3
 }
 
-class LineLayout(bool L) : Layout
+class LineLayout : Layout
 {
     private 
     {
@@ -36,10 +36,12 @@ class LineLayout(bool L) : Layout
         int seoffset;
         int tboffset;
         int al; 
+        bool L;
     }
 
-    this( bool stretched = true )
+    this( bool layout, bool stretched = true )
     {
+        L = layout;
         isStretched = stretched;
     }
 
@@ -171,7 +173,7 @@ public:
                 });
         reshape( r );
         size_lim.w.fix = true;
-        layout = new LineLayout!V_LAYOUT(false);
+        layout = new LineLayout(V_LAYOUT,false);
         //ivec2 old_vec;
         //ivec2 grab_vec;
 
@@ -242,7 +244,7 @@ public:
         btn_test = new SimpleButton( tb, irect( 5, 5, 40, 30 ), "brn"w, 
                 { btn_test.label.setText( btn_str[cond%$] ); cond++; } );
 
-        layout = new LineLayout!H_LAYOUT;
+        layout = new LineLayout(H_LAYOUT);
 
     }
 }
