@@ -114,10 +114,7 @@ unittest
         this( in imsize_t sz )
         {
             img = new Image( sz, ImageType( ComponentType.NORM_FLOAT, 1 ) );
-            visible_set = new class BoolSetting
-            {
-                public override wstring name() const { return "visible"; }
-            };
+            visible_set = new BoolSetting( "visible" );
         }
 
         @property
