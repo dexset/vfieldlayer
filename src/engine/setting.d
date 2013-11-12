@@ -33,10 +33,20 @@ public:
 
     @property
     {
-        final wstring name() const { return s_name; }
+        final 
+        {
+            wstring name() const { return s_name; }
 
-        Variant value() const { return Variant( s_val ); }
-        T typeval() const { return s_val; }
+            Variant value() const { return Variant( s_val ); }
+
+            T typeval() const { return s_val; }
+
+            void typeval( T nv )
+            {
+                s_val = nv;
+                sig_update( Variant( nv ) );
+            }
+        }
 
         abstract
         {
@@ -59,4 +69,43 @@ class BoolSetting: TypeSetting!bool
         Variant defaultValue() const { return Variant(false); }
         final Variant permissiveRange() const { return Variant([false,true]); }
     }
+}
+
+unittest
+{
+    Setting val = new BoolSetting( "test" );
+
+    bool val_update = false;
+    val.updateConnect( (v) { val_update = true; } );
+
+    assert( val.name == "test" );
+    assert( val.value == false );
+    assert( val_update == false );
+
+    val.value = true;
+
+    assert( val.value == true );
+    assert( val_update == true );
+
+    val_update = false;
+    assert( val_update == false );
+
+    val.value = false;
+    assert( val.value == false );
+    assert( val_update == true );
+
+    val_update = false;
+    bool excpt = false;
+    try val.value = 10;
+    catch( SettingException e ) excpt = true;
+    assert( excpt );
+    assert( val_update == false );
+
+    auto bval = cast(BoolSetting)val;
+    assert( bval !is null );
+    
+    bval.typeval = true;
+    assert( bval.value == true );
+    assert( bval.typeval == true );
+    assert( val_update == true );
 }
