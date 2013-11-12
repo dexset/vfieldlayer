@@ -1,8 +1,11 @@
 module engine.setting;
 
 import std.variant;
+import std.exception;
 
 import engine.item;
+
+import desutil.signal;
 
 enum SettingType
 {
@@ -21,8 +24,14 @@ enum SettingType
     FLOAT_ARR,
 }
 
+alias Signal!Variant VarSignal;
+
+class SettingException: Exception { @safe pure nothrow this( string msg ){ super(msg); } }
+
 interface Setting
 {
+    protected ref VarSignal getUpdateSignal();
+
     @property 
     {
         wstring name() const;
@@ -31,22 +40,38 @@ interface Setting
         Variant permissiveRange() const;
 
         Variant value() const;
-        void value( Variant );
+
+        void value(T)( T val ) { (getUpdateSignal())( Variant(val) ); }
     }
+
+    void updateConnect( void delegate(Variant) );
 }
 
-interface SettingObject: Item
-{
-    Setting[] getSettingsList() const;
-    void setSetting( wstring name, Variant val );
-}
+interface SettingObject: Item { Setting[] getSettingsList(); }
 
 class BoolSetting: Setting
 {
     private bool val = false;
+    private VarSignal sig_update;
+
+    protected ref VarSignal getUpdateSignal() { return sig_update; }
 
     public @property
     {
+        this()
+        {
+            sig_update.connect( (Variant v)
+            {
+                if( v.hasValue )
+                {
+                    if( v.type != typeid(bool) )
+                        throw new SettingException( "bad value type" );
+                    val = v.get!bool();
+                }
+                else val = false;
+            });
+        }
+
         abstract wstring name() const;
 
         final SettingType type() const
@@ -60,15 +85,7 @@ class BoolSetting: Setting
 
         Variant value() const
         { return Variant( val ); }
-
-        void value( Variant v )
-        {
-            if( v.hasValue )
-            {
-                assert( v.type == typeid(bool) );
-                val = v.get!bool();
-            }
-            else val = false;
-        }
     }
+
+    void updateConnect( void delegate(Variant) d ) { sig_update.connect( d ); }
 }

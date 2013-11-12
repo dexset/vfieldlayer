@@ -12,6 +12,6 @@ interface WSData: SettingObject
         imsize_t size() const;
         TempBuffer buffer();
         Image mask();
-        Layer[] layers();
+        ref Layer[] layers();
     }
 }
