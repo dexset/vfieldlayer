@@ -1,8 +1,8 @@
-module engine.history;
+module engine.core.history;
 
-import engine.item;
+import engine.core.item;
 
-import desmath.types.rect;
+public import desmath.types.rect;
 
 interface HistoryItem : Item
 {

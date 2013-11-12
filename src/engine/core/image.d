@@ -1,9 +1,9 @@
-module engine.image;
+module engine.core.image;
 
 import std.exception;
 
-import desmath.types.vector;
-import desmath.types.rect;
+public import desmath.types.vector;
+public import desmath.types.rect;
 
 alias vec!(2,size_t,"wh") imsize_t;
 alias vec!(2,size_t,"xy") imcrd_t;
@@ -21,6 +21,9 @@ struct ImageType
     ComponentType comp;
     ubyte channels;
 }
+
+class ImageException : Exception 
+{ @safe pure nothrow this( string msg ){ super( msg ); } }
 
 final class Image
 {
@@ -70,7 +73,8 @@ public:
         else
         {
             setParams( sz, imtp );
-            enforce( dt.length == sz.w * sz.h * elemSize, "wrong input data length" );
+            if( dt.length != sz.w * sz.h * elemSize )
+                throw new ImageException( "wrong input data length" );
             data = dt.dup;
             resetAccessRect();
         }
@@ -79,7 +83,8 @@ public:
     pure this(T)( in imsize_t sz, in T[] dt ) 
     { 
         setParams!T( sz );
-        enforce( dt.length == sz.w * sz.h, "wrong input data length" );
+        if( dt.length != sz.w * sz.h )
+            throw new ImageException( "wrong input data length" );
         data = cast(ubyte[])dt.dup;
         resetAccessRect();
     }
@@ -142,9 +147,11 @@ public:
     ref T access(T)( in imcrd_t pos ) { return access!T( pos.x, pos.y ); }
     ref T access(T)( size_t x, size_t y ) 
     { 
-        enforce( T.sizeof == elemSize, "access type size uncompatible with elem size" );
+        if( T.sizeof != elemSize )
+            throw new ImageException( "access type size uncompatible with elem size" );
         size_t ind = imsize.w * y + x;
-        enforce( ind < imsize.w * imsize.h, "Range violation" );
+        if( ind >= imsize.w * imsize.h )
+            throw new ImageException( "Range violation" );
 
         if( min.x > x ) min.x = x;
         if( min.y > y ) min.y = y;
@@ -158,23 +165,28 @@ public:
     T read(T)( in imcrd_t pos ) const { return read!T( pos.x, pos.y ); }
     T read(T)( size_t x, size_t y ) const
     {
-        enforce( T.sizeof == elemSize, "read type size uncompatible with elem size" );
+        if( T.sizeof != elemSize )
+            throw new ImageException( "read type size uncompatible with elem size" );
         size_t ind = imsize.w * y + x;
-        enforce( ind < imsize.w * imsize.h, "Range violation" );
+        if( ind >= imsize.w * imsize.h )
+            throw new ImageException( "Range violation" );
 
         return (cast(T[])(data))[ ind ];
     }
 
     @property T[] dup(T)() const 
     { 
-        enforce( T.sizeof == elemSize, "dup type size uncompatible with elem size" );
+        if( T.sizeof != elemSize )
+            throw new ImageException( "dup type size uncompatible with elem size" );
         return cast(T[])data.dup; 
     }
 
     void setData(T)( in T[] ndata )
     {
-        enforce( T.sizeof == elemSize, "setData type size uncompatible with elem size" );
-        enforce( ndata.length == imsize.w * imsize.h, "bad set data length" );
+        if( T.sizeof != elemSize )
+            throw new ImageException( "setData type size uncompatible with elem size" );
+        if( ndata.length != imsize.w * imsize.h )
+            throw new ImageException( "bad set data length" );
         data = cast(ubyte[])ndata.dup;
         min = imcrd_t( 0, 0 );
         max = imcrd_t( imsize.w - 1, imsize.h - 1 );

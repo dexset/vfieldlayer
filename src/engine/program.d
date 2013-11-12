@@ -1,11 +1,12 @@
 module engine.program;
 
-import engine.programiface;
+import engine.core.programiface;
 
-import engine.tempbuffer;
+import engine.core.tempbuffer;
+import engine.core.viewport;
+import engine.core.wsdata;
+
 import engine.workspace;
-import engine.viewport;
-import engine.wsdata;
 
 class Program: PIFilter, PIDrawTool, PIViewTool
 {
