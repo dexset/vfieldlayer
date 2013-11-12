@@ -32,7 +32,7 @@ private:
     ImageType imtype;
     size_t elemSize;
 
-    imsize_t min, max;
+    imcrd_t min, max;
 
     pure void setParams( in imsize_t sz, in ImageType imtp )
     {
@@ -53,7 +53,7 @@ private:
         elemSize = compSize * imtype.channels;
     }
 
-    void setParams(T)( in imsize_t sz )
+    pure void setParams(T)( in imsize_t sz )
     {
         imsize = sz;
         elemSize = T.sizeof;
@@ -64,13 +64,23 @@ private:
     pure void allocateData() { data = new ubyte[ elemSize * imsize.w * imsize.h ]; }
 
 public:
-    pure this( in imsize_t sz, in ImageType imtp ) { allocate( sz, imtp ); }
-
-    pure this( in imsize_t sz, in ImageType imtp, in ubyte[] dt ) 
+    pure this( in imsize_t sz, in ImageType imtp, in ubyte[] dt = null ) 
     { 
-        setParams( sz, imtp );
-        enforce( dt.length == sz.w * sz.h * elemSize, "wrong input data length" );
-        data = dt.dup;
+        if( dt is null || dt.length == 0 ) allocate( sz, imtp );
+        else
+        {
+            setParams( sz, imtp );
+            enforce( dt.length == sz.w * sz.h * elemSize, "wrong input data length" );
+            data = dt.dup;
+            resetAccessRect();
+        }
+    }
+
+    pure this(T)( in imsize_t sz, in T[] dt ) 
+    { 
+        setParams!T( sz );
+        enforce( dt.length == sz.w * sz.h, "wrong input data length" );
+        data = cast(ubyte[])dt.dup;
         resetAccessRect();
     }
 
@@ -83,17 +93,19 @@ public:
         resetAccessRect();
     }
 
-    pure void allocate( in imsize_t sz, in ImageType imtp )
+    pure void allocate( in imsize_t sz, in ImageType imtp, in ubyte[] dt = null )
     {
         setParams( sz, imtp );
-        allocateData();
+        if( dt is null || dt.length == 0 ) allocateData();
+        else data = dt.dup;
         resetAccessRect();
     }
 
-    void allocateRaw(T)( in imsize_t sz )
+    void allocateRaw(T)( in imsize_t sz, in T[] dt = null )
     {
         setParams!T( sz );
-        allocateData();
+        if( dt is null || dt.length == 0 ) allocateData();
+        else data = cast(ubyte[])dt.dup;
         resetAccessRect();
     }
 
@@ -105,15 +117,9 @@ public:
 
         foreach( y; ar.y .. ar.y + ar.h )
         {
-        //    import std.algorithm;
-        //    fill( data[ imsize.w * y * elemSize .. ( imsize.w * y + ar.w ) * elemSize - 1 ], 0 );
             foreach( ref v; data[ ( imsize.w * y + ar.x ) * elemSize .. 
                                   ( imsize.w * y + ar.x + ar.w ) * elemSize ] )
                 v = 0;
-            
-        //    foreach( x; ar.x .. ar.x + ar.w )
-        //        foreach( i; 0 .. elemSize )
-        //            data[ ( imsize.w * y + x ) * elemSize + i ] = 0;
         }
 
         resetAccessRect();
@@ -140,11 +146,11 @@ public:
         size_t ind = imsize.w * y + x;
         enforce( ind < imsize.w * imsize.h, "Range violation" );
 
-        if( min.w > x ) min.w = x;
-        if( min.h > y ) min.h = y;
+        if( min.x > x ) min.x = x;
+        if( min.y > y ) min.y = y;
 
-        if( max.w < x ) max.w = x;
-        if( max.h < y ) max.h = y;
+        if( max.x < x ) max.x = x;
+        if( max.y < y ) max.y = y;
 
         return (cast(T[])(data))[ ind ];
     }
@@ -152,7 +158,7 @@ public:
     T read(T)( in imcrd_t pos ) const { return read!T( pos.x, pos.y ); }
     T read(T)( size_t x, size_t y ) const
     {
-        enforce( T.sizeof == elemSize, "access type size uncompatible with elem size" );
+        enforce( T.sizeof == elemSize, "read type size uncompatible with elem size" );
         size_t ind = imsize.w * y + x;
         enforce( ind < imsize.w * imsize.h, "Range violation" );
 
@@ -161,8 +167,17 @@ public:
 
     @property T[] dup(T)() const 
     { 
-        enforce( T.sizeof == elemSize, "access type size uncompatible with elem size" );
+        enforce( T.sizeof == elemSize, "dup type size uncompatible with elem size" );
         return cast(T[])data.dup; 
+    }
+
+    void setData(T)( in T[] ndata )
+    {
+        enforce( T.sizeof == elemSize, "setData type size uncompatible with elem size" );
+        enforce( ndata.length == imsize.w * imsize.h, "bad set data length" );
+        data = cast(ubyte[])ndata.dup;
+        min = imcrd_t( 0, 0 );
+        max = imcrd_t( imsize.w - 1, imsize.h - 1 );
     }
 }
 
@@ -228,4 +243,32 @@ unittest
     assert( fimg.read!float(10,10) == 0.2f );
     fimg.clearLastChanges();
     assert( fimg.read!float(10,10) == 0.0f );
+}
+
+unittest
+{
+    bool except = false;
+    try
+    {
+        vec3[] emptyData;
+        auto img = new Image( imsize_t( 3, 3 ), emptyData );
+    } catch( Exception e ) { except = true; }
+    assert( except );
+
+    auto data = [
+        vec3( 1,0,0 ), vec3( 0.1,0.2,0 ), vec3( 0,0,0 ),
+        vec3( 0,0,0 ), vec3( 0,1,0 ), vec3( 0,0,0 ),
+        vec3( 0,0,0 ), vec3( 0,0,0 ), vec3( 0,0,1 )
+        ];
+    auto img2 = new Image( imsize_t( 3, 3 ), data );
+
+    assert( img2.read!col3(1,0) == col3( 0.1, 0.2, 0 ) );
+
+    auto retdata = img2.dup!vec3;
+    assert( retdata == data );
+
+    data[3] = vec3( 1,1,0 );
+    img2.setData( data );
+    assert( img2.read!vec3(0,1) == vec3( 1,1,0 ) );
+    assert( img2.accessRect == irect(0,0,img2.size.w,img2.size.h) );
 }
