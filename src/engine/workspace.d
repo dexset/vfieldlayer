@@ -114,10 +114,7 @@ unittest
         this( in imsize_t sz )
         {
             img = new Image( sz, ImageType( ComponentType.NORM_FLOAT, 1 ) );
-            visible_set = new class BoolSetting
-            {
-                public override wstring name() const { return "visible"; }
-            };
+            visible_set = new BoolSetting( "visible" );
         }
 
         @property
@@ -136,29 +133,4 @@ unittest
     }
 
     ws.layers ~= new TestLayer( imsize_t( 10, 10 ) );
-    auto tlset = ws.layers[0].getSettings();
-    bool setting_updated = false;
-    tlset[0].updateConnect( (v) { setting_updated = true; } );
-
-    assert( tlset[0].name == "visible" );
-    assert( tlset[0].value == false );
-    assert( setting_updated == false );
-
-    tlset[0].value = true;
-
-    assert( tlset[0].value == true );
-    assert( setting_updated == true );
-
-    setting_updated = false;
-    assert( setting_updated == false );
-
-    tlset[0].value = false;
-
-    assert( tlset[0].value == false );
-    assert( setting_updated == true );
-
-    bool excpt = false;
-    try tlset[0].value = 10;
-    catch( SettingException e ) excpt = true;
-    assert( excpt );
 }
