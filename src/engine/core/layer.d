@@ -1,9 +1,8 @@
-module engine.layer;
+module engine.core.layer;
 
-import engine.setting;
-import engine.image;
-
-import desmath.types.rect;
+public import engine.core.setting;
+public import engine.core.image;
+public import desmath.types.rect;
 
 interface Layer: SettingObject
 {

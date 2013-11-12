@@ -1,8 +1,8 @@
-module engine.programiface;
+module engine.core.programiface;
 
-import engine.tempbuffer;
-import engine.wsdata;
-import engine.viewport;
+import engine.core.tempbuffer;
+import engine.core.wsdata;
+import engine.core.viewport;
 
 interface PIDrawTool
 {

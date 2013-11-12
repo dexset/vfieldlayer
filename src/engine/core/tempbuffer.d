@@ -1,6 +1,6 @@
-module engine.tempbuffer;
+module engine.core.tempbuffer;
 
-public import engine.image;
+public import engine.core.image;
 
 interface TempBuffer
 {

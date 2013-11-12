@@ -1,4 +1,4 @@
-module engine.viewport;
+module engine.core.viewport;
 
 public import desmath.types.vector;
 

@@ -1,11 +1,13 @@
 module engine.workspace;
 
-import engine.viewport;
-import engine.wsdata;
-import engine.history;
+import engine.core.viewport;
+import engine.core.wsdata;
+import engine.core.history;
 
 import std.variant;
 import desgui.base.widget;
+
+import engine.setting;
 
 class Workspace: Viewport, WSData, TempBuffer
 {
@@ -51,7 +53,7 @@ public:
         ref Layer[] layers() { return layers_list; }
     }
 
-    Setting[] getSettingsList() { return []; }
+    Setting[] getSettings() { return []; }
 
     // TempBuffer
     Image[] getTempImages( in ImageType[] it_list )
@@ -128,13 +130,13 @@ unittest
             void select( bool s ) { selected = s; }
         }
 
-        Setting[] getSettingsList() { return [ visible_set ]; }
+        Setting[] getSettings() { return [ visible_set ]; }
 
         bool isvisible() const { return visible; }
     }
 
     ws.layers ~= new TestLayer( imsize_t( 10, 10 ) );
-    auto tlset = ws.layers[0].getSettingsList();
+    auto tlset = ws.layers[0].getSettings();
     bool setting_updated = false;
     tlset[0].updateConnect( (v) { setting_updated = true; } );
 
