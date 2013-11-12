@@ -221,14 +221,26 @@ public:
         tb = new ToolBar( this, irect( 0, 20, 100, 400 ) );
         wspace = new WorkSpace( this, irect( 130, 5, 40, 40 ) );
 
-        SimpleButton[10] btn1;
+        SimpleButton[10] btn;
         import std.random;
-        foreach( i, ref b; btn1 )
+        foreach( i, ref b; btn )
         {
             import std.string;
             import std.conv;
             b = new MyButton( tb, irect( i, 5, 30+uniform( 0, 20 ), 30 ), to!wstring(format( "%d", i )), {} );
         }
+        size_t cond = 0;
+        SimpleButton btn_test;
+        wstring[] btn_str = [ 
+            "as",
+            "df",
+            "jh",
+            "jg",
+            "10",
+            "j1"
+            ];
+        btn_test = new SimpleButton( tb, irect( 5, 5, 40, 30 ), "brn"w, 
+                { btn_test.label.setText( btn_str[cond%$] ); cond++; } );
 
         layout = new LineLayout!H_LAYOUT;
 
