@@ -36,29 +36,6 @@ public:
         tl.setJustify( false );
         tl.setMainOffset( 2 );
         tl.setSEOffset( 4 );
-        //tl.setTBOffset( 10 );
-        //ivec2 old_vec;
-        //ivec2 grab_vec;
-
-        //mouse.connect( ( in ivec2 p, in MouseEvent me )
-        //        {
-        //            if( me.type == me.Type.PRESSED && 
-        //                p.x > rect.w-20 )
-        //            {
-        //                grab = true;
-        //                grab_vec = p - rect.size;
-        //            }
-        //            if( me.type == me.Type.RELEASED )
-        //            {
-        //                grab = false;
-        //            }
-        //            if( grab )
-        //            {
-        //                auto inrect = irect( rect.pos , p.x - grab_vec.x, rect.h  );
-        //                reshape( inrect );
-        //                parent.reshape( parent.rect );
-        //            }
-        //        });
     }
 }
 
