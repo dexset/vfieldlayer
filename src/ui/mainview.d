@@ -1,14 +1,12 @@
 module ui.mainview;
 
 import ui.window;
+import ui.workspace;
+import ui.widget;
 
 import desgui;
 
-import ui.workspace;
-
 import desgl.draw.rectshape;
-
-import ui.layout;
 
 class ToolBar : Widget
 {
@@ -83,6 +81,7 @@ private:
 public:
     ToolBar tb;
     WorkSpace wspace;
+    Drag dr;
     this( string title )
     {
         super( title );
