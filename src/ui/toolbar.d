@@ -11,9 +11,9 @@ class ToolBar : BaseWidget
         size_lim.w.fix = true;
         layout = new LineLayout(V_LAYOUT,false);
         LineLayout tl = cast(LineLayout)(layout);
-        tl.setAlign( ALIGN_CENTER );
-        tl.setJustify( false );
-        tl.setMainOffset( 2 );
-        tl.setSEOffset( 4 );
+        tl.linealign = ALIGN_CENTER;
+        tl.justify = false;
+        tl.moffset = 2;
+        tl.seoffset = 4;
     }
 }
