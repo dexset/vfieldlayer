@@ -2,10 +2,12 @@ import engine;
 import std.stdio;
 import desgui;
 import ui;
+import derelict.devil.il;
 
 void main( string[] args )
 {
-    writeln("test");
+    DerelictIL.load();
+    ilInit();
     Application.init();
 
     auto mv = new MainView( "vflayer" );
