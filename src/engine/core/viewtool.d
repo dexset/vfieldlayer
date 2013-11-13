@@ -1,4 +1,4 @@
-module engine.coreviewtool;
+module engine.core.viewtool;
 
 import engine.core.tool;
 public import engine.core.programiface;
