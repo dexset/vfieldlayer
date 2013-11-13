@@ -1,5 +1,4 @@
 import engine;
-import std.stdio;
 import desgui;
 import ui;
 import derelict.devil.il;

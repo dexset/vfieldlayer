@@ -4,67 +4,14 @@ import desgui;
 
 import desgl.draw.rectshape;
 
+import ui.basewidget;
 import ui.workspace;
-
-class ToolBar : Widget
-{
-public:
-    ColorRect shape;
-
-    this( Widget par, in irect r )
-    {
-        import std.stdio;
-        super( par );
-        auto ploc = info.shader.getAttribLocation( "vertex" );
-        auto cloc = info.shader.getAttribLocation( "color" );
-        shape = new ColorRect( ploc, cloc );
-        shape.setColor( col4( 1.0f, 1.0f, 1.0f, 0.5f ) );
-        draw.connect( ()
-                {
-                    shape.draw();
-                } );
-        reshape.connect( (r)
-                {
-                    auto inrect = irect( 0, 0, r.w, r.h );
-                    shape.reshape(inrect);
-                });
-        reshape( r );
-        size_lim.w.fix = true;
-        layout = new LineLayout(V_LAYOUT,false);
-        LineLayout tl = cast(LineLayout)(layout);
-        tl.setAlign( ALIGN_CENTER );
-        tl.setJustify( false );
-        tl.setMainOffset( 2 );
-        tl.setSEOffset( 4 );
-        //tl.setTBOffset( 10 );
-        //ivec2 old_vec;
-        //ivec2 grab_vec;
-
-        //mouse.connect( ( in ivec2 p, in MouseEvent me )
-        //        {
-        //            if( me.type == me.Type.PRESSED && 
-        //                p.x > rect.w-20 )
-        //            {
-        //                grab = true;
-        //                grab_vec = p - rect.size;
-        //            }
-        //            if( me.type == me.Type.RELEASED )
-        //            {
-        //                grab = false;
-        //            }
-        //            if( grab )
-        //            {
-        //                auto inrect = irect( rect.pos , p.x - grab_vec.x, rect.h  );
-        //                reshape( inrect );
-        //                parent.reshape( parent.rect );
-        //            }
-        //        });
-    }
-}
+import ui.menu;
+import ui.toolbar;
 
 class MyButton : SimpleButton
 {
-    this( Widget par, irect r, wstring caption, void delegate() onclick = null )
+    this( Widget par, in irect r, wstring caption, void delegate() onclick = null )
     {
         super( par, r, caption, onclick );
         size_lim.w.fix = false;
@@ -72,42 +19,59 @@ class MyButton : SimpleButton
     }
 }
 
+class LayerView: BaseWidget
+{
+    this( Widget par, in irect r )
+    {
+        super( par, r );
+        size_lim.w.fix = true;
+        size_lim.h.fix = false;
+    }
+}
+
 class MainView : AppWindow
 {
 private:
+    ToolBar tb;
+    Menu menu;
+    WorkSpace wspace;
 
 public:
-    ToolBar tb;
-    WorkSpace wspace;
     this( string title )
     {
         super( title );
 
-        tb = new ToolBar( this, irect( 0, 20, 50, 400 ) );
-        wspace = new WorkSpace( this, irect( 130, 5, 40, 40 ) );
+        menu = new Menu( this, irect( 0, 0, 400, 30 ) );
+        auto menuList = 
+        [
+            "File"w,
+            "Edig"w,
+            "View"w,
+            "Help"
+        ];
+        foreach( i, mitem; menuList )
+            auto mi = new SimpleButton( menu, irect( 0, 0, 100, 30 ), mitem );
 
-        SimpleButton[10] btn;
-        import std.random;
-        foreach( i, ref b; btn )
+        auto cw = new Widget( this );
+        cw.layout = new LineLayout(H_LAYOUT);
+
+        tb = new ToolBar( cw, irect( 0, 20, 50, 400 ) );
+        wspace = new WorkSpace( cw, irect( 130, 5, 40, 40 ) );
+        auto lv = new LayerView( cw, irect( 0,0, 200, 400 ) );
+
+        foreach( i; 0 .. 10 )
         {
             import std.string;
             import std.conv;
-            b = new MyButton( tb, irect( i, 5, 30, 30 ), to!wstring(format( "%d", i )), {} );
+            auto b = new MyButton( tb, irect( i, 5, 30, 30 ), to!wstring(format( "%d", i )), {} );
         }
+
         size_t cond = 0;
         SimpleButton btn_test;
-        wstring[] btn_str = [ 
-            "as",
-            "df",
-            "jh",
-            "jg",
-            "10",
-            "j1"
-            ];
+        wstring[] btn_str = [ "as", "df", "jh", "jg", "10", "j1" ];
         btn_test = new SimpleButton( tb, irect( 5, 5, 30, 30 ), "bt"w, 
                 { btn_test.label.setText( btn_str[cond%$] ); cond++; } );
 
-        layout = new LineLayout(H_LAYOUT);
-
+        layout = new LineLayout(V_LAYOUT);
     }
 }
