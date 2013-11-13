@@ -1,7 +1,5 @@
 module ui.mainview;
 
-import ui.window;
-
 import desgui;
 
 import ui.workspace;
