@@ -53,7 +53,6 @@ public:
         super( par );
         reshape( r );
 
-        auto baserect = irect( 5,5, 100, 30 );
 
         //IL
 
@@ -91,9 +90,10 @@ public:
         ///
 
         tex = new GLTexture2D;
-        tex.image( ivec2( imhead.res[0], imhead.res[1] ), GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, imdata.ptr );
+        auto baserect = irect( 5,5, imhead.res[0], imhead.res[1] );
+        writeln( baserect.size );
+        tex.image( baserect.size, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, imdata.ptr );
                 
-
         auto ploc = info.shader.getAttribLocation( "vertex" );
         auto cloc = info.shader.getAttribLocation( "color" );
         auto tloc = info.shader.getAttribLocation( "uv" );
@@ -107,6 +107,8 @@ public:
                 });
         draw.connect( ()
                 {
+                    tex.bind();
+                    info.shader.setUniform!int( "use_texture", 2 );
                     plane.draw();
                 } );
 
