@@ -45,7 +45,7 @@ public:
         auto menuList = 
         [
             "File"w,
-            "Edig"w,
+            "Edit"w,
             "View"w,
             "Help"
         ];
