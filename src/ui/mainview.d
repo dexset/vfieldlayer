@@ -64,8 +64,7 @@ public:
             import std.string;
             import std.conv;
             auto b = new MyButton( tb, irect( i, 5, 30, 30 ), to!wstring(format( "%d", i )), {} );
-        }
-
+        } 
         size_t cond = 0;
         SimpleButton btn_test;
         wstring[] btn_str = [ "as", "df", "jh", "jg", "10", "j1" ];

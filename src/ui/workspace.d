@@ -98,19 +98,19 @@ public:
         plane = new ColorTexRect( ploc, cloc, tloc );
         plane.reshape( irect(10, 10, imhead.res[0], imhead.res[1]) );
 
-        reshape.connect( (r)
+        reshape_sig.connect( (r)
         {
             plane.reshape(irect(0, 0, r.size)); 
         });
-        draw.connect( ()
+        draw_sig.connect( ()
         {
             tex.bind();
             info.shader.setUniform!int( "use_texture", 2 );
             plane.draw();
         });
 
-        idle.connect( { plane.reshape( irect( baserect * zoom ) ); } );
+        idle_sig.connect( { plane.reshape( irect( baserect * zoom ) ); } );
 
-        mouse.connect( &mouse_hook );
+        mouse_sig.connect( &mouse_hook );
     }
 }
