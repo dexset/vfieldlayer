@@ -4,14 +4,14 @@ import ui.basewidget;
 
 class Menu : BaseWidget
 {
-    this( Widget par, in irect r )
+    this( DiWidget par, in irect r )
     {
         super( par, r );
 
         size_lim.h.fix = true;
 
-        layout = new LineLayout(H_LAYOUT,false);
-        auto ll = cast(LineLayout)layout;
+        auto ll = new DiLineLayout(H_LAYOUT,false);
+        layout = ll;
         ll.linealign = ALIGN_CENTER;
         ll.justify = false;
         ll.moffset = 1;

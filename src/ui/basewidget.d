@@ -3,13 +3,13 @@ module ui.basewidget;
 public import desgui;
 public import desgl.draw.rectshape;
 
-class BaseWidget : Widget
+class BaseWidget : DiWidget
 {
 protected:
     ColorRect shape;
 
 public:
-    this( Widget par, in irect r )
+    this( DiWidget par, in irect r )
     {
         super( par );
         auto ploc = info.shader.getAttribLocation( "vertex" );

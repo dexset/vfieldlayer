@@ -7,13 +7,13 @@ void main( string[] args )
 {
     DerelictIL.load();
     ilInit();
-    Application.init();
+    DiApplication.init();
 
     auto mv = new MainView( "vflayer" );
     mv.show();
 
-    Application.run();
+    DiApplication.run();
 
     clear( mv );
-    Application.destroy();
+    DiApplication.destroy();
 }

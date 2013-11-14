@@ -11,7 +11,7 @@ import ui.toolbar;
 
 class MyButton : SimpleButton
 {
-    this( Widget par, in irect r, wstring caption, void delegate() onclick = null )
+    this( DiWidget par, in irect r, wstring caption, void delegate() onclick = null )
     {
         super( par, r, caption, onclick );
         size_lim.w.fix = false;
@@ -21,7 +21,7 @@ class MyButton : SimpleButton
 
 class LayerView: BaseWidget
 {
-    this( Widget par, in irect r )
+    this( DiWidget par, in irect r )
     {
         super( par, r );
         size_lim.w.fix = true;
@@ -29,7 +29,7 @@ class LayerView: BaseWidget
     }
 }
 
-class MainView : AppWindow
+class MainView : DiAppWindow
 {
 private:
     ToolBar tb;
@@ -52,8 +52,8 @@ public:
         foreach( i, mitem; menuList )
             auto mi = new SimpleButton( menu, irect( 0, 0, 100, 30 ), mitem );
 
-        auto cw = new Widget( this );
-        cw.layout = new LineLayout(H_LAYOUT);
+        auto cw = new DiWidget( this );
+        cw.layout = new DiLineLayout(H_LAYOUT);
 
         tb = new ToolBar( cw, irect( 0, 20, 50, 400 ) );
         wspace = new WorkSpace( cw, irect( 130, 5, 40, 40 ) );
@@ -72,6 +72,6 @@ public:
         btn_test = new SimpleButton( tb, irect( 5, 5, 30, 30 ), "bt"w, 
                 { btn_test.label.setText( btn_str[cond%$] ); cond++; } );
 
-        layout = new LineLayout(V_LAYOUT);
+        layout = new DiLineLayout(V_LAYOUT);
     }
 }

@@ -6,7 +6,7 @@ import desgl;
 import dvf;
 import derelict.devil.il;
 
-class WorkSpace: Widget
+class WorkSpace: DiWidget
 {
 private:
 
@@ -15,7 +15,7 @@ private:
 
     ivec2 old_mpos;
 
-    void mouse_hook( in ivec2 p, in MouseEvent me )
+    void mouse_hook( in ivec2 p, in DiMouseEvent me )
     {
         if( me.type == me.Type.RELEASED && 
             me.btn == me.Button.MIDDLE )
@@ -48,14 +48,12 @@ private:
     ubyte[] imdata;
 
 public:
-    this( Widget par, in irect r )
+    this( DiWidget par, in irect r )
     {
         super( par );
         reshape( r );
 
-
         //IL
-
         fhead.type = "DVF ";
         fhead.major = 0;
         fhead.minor = 1;
@@ -88,7 +86,6 @@ public:
             d = rawimdata[i];
 
         ///
-
         tex = new GLTexture2D;
         auto baserect = irect( 5,5, imhead.res[0], imhead.res[1] );
         writeln( baserect.size );
@@ -102,15 +99,15 @@ public:
         plane.reshape( irect(10, 10, imhead.res[0], imhead.res[1]) );
 
         reshape.connect( (r)
-                {
-                   plane.reshape(irect(0, 0, r.size)); 
-                });
+        {
+            plane.reshape(irect(0, 0, r.size)); 
+        });
         draw.connect( ()
-                {
-                    tex.bind();
-                    info.shader.setUniform!int( "use_texture", 2 );
-                    plane.draw();
-                } );
+        {
+            tex.bind();
+            info.shader.setUniform!int( "use_texture", 2 );
+            plane.draw();
+        });
 
         idle.connect( { plane.reshape( irect( baserect * zoom ) ); } );
 
