@@ -12,9 +12,9 @@ class Menu : BaseWidget
 
         layout = new LineLayout(H_LAYOUT,false);
         auto ll = cast(LineLayout)layout;
-        ll.setAlign( ALIGN_CENTER );
-        ll.setJustify( false );
-        ll.setMainOffset( 1 );
-        ll.setSEOffset( 2 );
+        ll.linealign = ALIGN_CENTER;
+        ll.justify = false;
+        ll.moffset = 1;
+        ll.seoffset = 2;
     }
 }
