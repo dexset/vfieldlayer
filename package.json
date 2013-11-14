@@ -9,8 +9,8 @@
         "dvf": "~master",
         "desutil": "~master",
         "desmath": "~master",
-        "desgl": "~develop",
-        "desgui": "~develop",
+        "desgl": "~master",
+        "desgui": "~master",
         "derelict": "~master"
     }
 }
