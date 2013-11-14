@@ -40,7 +40,7 @@ private:
     }
 
     GLTexture2D tex;
-    ColorTexRect plane;
+    ColorTexRect!() plane;
     DVF_FileHeader fhead;
     DVF_FileMeta fmeta;
     DVF_LayerHeader imhead;
@@ -95,7 +95,7 @@ public:
         auto cloc = info.shader.getAttribLocation( "color" );
         auto tloc = info.shader.getAttribLocation( "uv" );
 
-        plane = new ColorTexRect( ploc, cloc, tloc );
+        plane = new ColorTexRect!()( ploc, cloc, tloc );
         plane.reshape( irect(10, 10, imhead.res[0], imhead.res[1]) );
 
         reshape_sig.connect( (r)

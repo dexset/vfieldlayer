@@ -6,7 +6,7 @@ public import desgl.draw.rectshape;
 class BaseWidget : DiWidget
 {
 protected:
-    ColorRect shape;
+    ColorRect!() shape;
 
 public:
     this( DiWidget par, in irect r )
@@ -14,7 +14,7 @@ public:
         super( par );
         auto ploc = info.shader.getAttribLocation( "vertex" );
         auto cloc = info.shader.getAttribLocation( "color" );
-        shape = new ColorRect( ploc, cloc );
+        shape = new ColorRect!()( ploc, cloc );
         shape.setColor( col4( 1.0f, 1.0f, 1.0f, 0.2f ) );
         draw_sig.connect({ shape.draw(); });
         reshape_sig.connect( (r)
