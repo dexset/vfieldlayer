@@ -4,7 +4,7 @@ import desgui;
 import desgl;
 
 import dvf;
-import derelict.devil.il;
+import desil.image;
 
 class WorkSpace: DiWidget
 {
@@ -40,12 +40,6 @@ private:
     }
 
     GLTexture2D tex;
-    ColorTexRect!() plane;
-    DVF_FileHeader fhead;
-    DVF_FileMeta fmeta;
-    DVF_LayerHeader imhead;
-    ulong imsz;
-    ubyte[] imdata;
 
 public:
     this( DiWidget par, in irect r )
@@ -53,50 +47,18 @@ public:
         super( par );
         reshape( r );
 
-        //IL
-        fhead.type = "DVF ";
-        fhead.major = 0;
-        fhead.minor = 1;
-        fmeta.layers = 1;
 
-        ILuint im;
-
-        ilGenImages( 1, &im );
-
-        ilBindImage( im );
-
-        import std.stdio;
-        if( ilLoadImage( "data/images/im1.jpg" ) == false )
-            stderr.writeln( "Error loading image!" );
-
-        imhead.id = 0;
-        imhead.name = cast(char[256])("Image");
-        imhead.comps = 3;
-        imhead.type = DVF_TYPE_UBYTE;
-        imhead.pos[] = 0;
-        imhead.res[0] = cast(ushort)(ilGetInteger( IL_IMAGE_WIDTH  ));
-        imhead.res[1] = cast(ushort)(ilGetInteger( IL_IMAGE_HEIGHT ));
-        imhead.mask_id = -1;
-        fmeta.res = imhead.res;
-        ubyte* rawimdata = ilGetData();
-        imsz = imhead.res[0]*imhead.res[1]*3;
-        imdata.length = imsz;
-
-        foreach( i, ref d; imdata )
-            d = rawimdata[i];
-
-        ///
+        auto im = Image.loadFromFile("data/images/im1.jpg");
         tex = new GLTexture2D;
-        auto baserect = irect( 5,5, imhead.res[0], imhead.res[1] );
-        writeln( baserect.size );
-        tex.image( baserect.size, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, imdata.ptr );
+        auto baserect = irect( 5,5, im.size );
+        tex.image( baserect.size, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, im.data.ptr );
                 
         auto ploc = info.shader.getAttribLocation( "vertex" );
         auto cloc = info.shader.getAttribLocation( "color" );
         auto tloc = info.shader.getAttribLocation( "uv" );
 
-        plane = new ColorTexRect!()( ploc, cloc, tloc );
-        plane.reshape( irect(10, 10, imhead.res[0], imhead.res[1]) );
+        auto plane = new ColorTexRect!()( ploc, cloc, tloc );
+        plane.reshape( irect(10, 10, im.size) );
 
         reshape_sig.connect( (r)
         {

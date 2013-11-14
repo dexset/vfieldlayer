@@ -11,6 +11,7 @@
         "desmath": "~master",
         "desgl": "~master",
         "desgui": "~master",
-        "derelict": "~master"
+        "derelict": "~master",
+        "desil": "~master"
     }
 }
