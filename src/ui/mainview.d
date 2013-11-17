@@ -38,11 +38,11 @@ class LayerView: BaseWidget
         import std.stdio;
         dl.onSelect.connect( (v){ stderr.writeln( "droplist select: ", v ); });
 
-        auto ll = new DiLineLayout(V_LAYOUT,false);
+        auto ll = new DiLineLayout(DiLineLayout.Type.VERTICAL);
         layout = ll;
-        ll.linealign = ALIGN_CENTER;
-        ll.moffset = 5;
-        ll.seoffset = 5;
+        ll.stretchDirect = false;
+        ll.border = 5;
+        ll.space = 5;
 
         static class FixSimpleButton: SimpleButton
         {
@@ -73,19 +73,41 @@ public:
     {
         super( title );
 
-        menu = new Menu( this, irect( 0, 0, 400, 30 ) );
-        auto menuList = 
-        [
-            "File"w,
-            "Edit"w,
-            "View"w,
-            "Help"
-        ];
-        foreach( i, mitem; menuList )
-            auto mi = new SimpleButton( menu, irect( 0, 0, 100, 30 ), mitem );
+        menu = new Menu( this, irect( 0, 0, 400, 50 ) );
+
+        static class LimSimpleButton: SimpleButton
+        {
+            this( DiWidget par, int Min, int Max, in irect r, wstring str, void delegate() onclick=null )
+            {
+                super( par, r, str, onclick );
+                size_lim.w.minimum = Min;
+                size_lim.w.maximum = Max;
+                size_lim.h.fix = true;
+            }
+        }
+
+        void rl(){ menu.relayout(); }
+        auto file_item = new LimSimpleButton( menu, 50, 100, irect( 0, 0, 100, 30 ), 
+                "ic", { menu.ll.alignInderect = menu.ll.Align.CENTER; rl(); } );
+        //auto st1 = new SimpleButton( menu, irect( 0, 0, 100, 30 ), "stretch"w );
+        auto edit_item = new LimSimpleButton( menu, 50, 100, irect( 0, 0, 100, 20 ), 
+                "is", { menu.ll.alignInderect = menu.ll.Align.START; rl(); } );
+        //auto st2 = new SimpleButton( menu, irect( 0, 0, 100, 30 ), "stretch"w );
+        auto view_item = new LimSimpleButton( menu, 50, 100, irect( 0, 0, 100, 25 ), 
+                "ie", { menu.ll.alignInderect = menu.ll.Align.END; rl(); } );
+        //auto st3 = new SimpleButton( menu, irect( 0, 0, 100, 30 ), "stretch"w );
+        auto help_item = new LimSimpleButton( menu, 100, 250, irect( 0, 0, 100, 30 ), "Help" );
+        //auto st4 = new SimpleButton( menu, irect( 0, 0, 100, 30 ), "stretch"w );
+        auto item1 = new LimSimpleButton( menu, 50, 100, irect( 0, 0, 100, 25 ), 
+                "dc", { menu.ll.alignDirect = menu.ll.Align.CENTER; rl(); } );
+        auto item2 = new LimSimpleButton( menu, 50, 100, irect( 0, 0, 100, 20 ), 
+                "ds", { menu.ll.alignDirect = menu.ll.Align.START; rl(); } );
+        auto item3 = new LimSimpleButton( menu, 50, 100, irect( 0, 0, 100, 30 ), 
+                "de", { menu.ll.alignDirect = menu.ll.Align.END; rl(); } );
+
 
         auto cw = new DiWidget( this );
-        cw.layout = new DiLineLayout(H_LAYOUT);
+        cw.layout = new DiLineLayout();
 
         tb = new ToolBar( cw, irect( 0, 20, 50, 400 ) );
         wspace = new WorkSpace( cw, irect( 130, 5, 40, 40 ) );
@@ -103,6 +125,6 @@ public:
         btn_test = new SimpleButton( tb, irect( 5, 5, 30, 30 ), "bt"w, 
                 { btn_test.label.setText( btn_str[cond%$] ); cond++; } );
 
-        layout = new DiLineLayout(V_LAYOUT);
+        layout = new DiLineLayout(DiLineLayout.Type.VERTICAL);
     }
 }

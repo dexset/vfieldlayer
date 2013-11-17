@@ -9,11 +9,11 @@ class ToolBar : BaseWidget
         super( par, r );
 
         size_lim.w.fix = true;
-        layout = new DiLineLayout(V_LAYOUT,false);
-        auto tl = cast(DiLineLayout)(layout);
-        tl.linealign = ALIGN_CENTER;
-        tl.justify = false;
-        tl.moffset = 2;
-        tl.seoffset = 4;
+        auto tl = new DiLineLayout(DiLineLayout.Type.VERTICAL);
+        layout = tl;
+
+        tl.stretchDirect = false;
+        tl.border = 2;
+        tl.space = 2;
     }
 }

@@ -4,17 +4,18 @@ import ui.basewidget;
 
 class Menu : BaseWidget
 {
+    DiLineLayout ll;
+
     this( DiWidget par, in irect r )
     {
         super( par, r );
 
         size_lim.h.fix = true;
 
-        auto ll = new DiLineLayout(H_LAYOUT,false);
+        ll = new DiLineLayout();
+        ll.border = 5;
+        ll.space = 5;
+
         layout = ll;
-        ll.linealign = ALIGN_CENTER;
-        ll.justify = false;
-        ll.moffset = 1;
-        ll.seoffset = 2;
     }
 }
