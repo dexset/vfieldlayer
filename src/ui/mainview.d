@@ -21,11 +21,43 @@ class MyButton : SimpleButton
 
 class LayerView: BaseWidget
 {
+    import desgui.ready.droplist;
+
     this( DiWidget par, in irect r )
     {
         super( par, r );
         size_lim.w.fix = true;
         size_lim.h.fix = false;
+
+        import std.string, std.conv;
+        wstring[] items;
+        foreach( i; 0 .. 20 )
+            items ~= to!wstring( format( "item[%02d]"w, i ) );
+
+        auto dl = new DiDropList( this, irect( 10, 10, 180, 30 ), items );
+        import std.stdio;
+        dl.onSelect.connect( (v){ stderr.writeln( "droplist select: ", v ); });
+
+        auto ll = new DiLineLayout(V_LAYOUT,false);
+        layout = ll;
+        ll.linealign = ALIGN_CENTER;
+        ll.moffset = 5;
+        ll.seoffset = 5;
+
+        static class FixSimpleButton: SimpleButton
+        {
+            this( DiWidget par, in irect r, wstring str )
+            {
+                super( par, r, str );
+                size_lim.h.fix = true;
+            }
+        }
+
+        auto btn = new FixSimpleButton( this, irect( 0, 0, 180, 30 ), "button"w );
+
+        auto dl2 = new DiDropList( this, irect( 10, 10, 180, 30 ), items[ 10 .. 15 ] );
+
+        update();
     }
 }
 
