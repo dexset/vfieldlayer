@@ -39,40 +39,29 @@ private:
         old_mpos = p;
     }
 
-    GLTexture2D tex;
-
 public:
     this( DiWidget par, in irect r )
     {
         super( par );
         reshape( r );
 
-
-        auto im = Image.loadFromFile("data/images/im1.jpg");
-        tex = new GLTexture2D;
-        auto baserect = irect( 5,5, im.size );
-        tex.image( baserect.size, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, im.data.ptr );
-                
-        auto ploc = info.shader.getAttribLocation( "vertex" );
-        auto cloc = info.shader.getAttribLocation( "color" );
-        auto tloc = info.shader.getAttribLocation( "uv" );
-
-        auto plane = new ColorTexRect!()( ploc, cloc, tloc );
-        plane.reshape( irect(10, 10, im.size) );
-
+        auto image = Image.loadFromFile( "data/images/im1.jpg" );
+        foreach(i;0 .. 100 )
+            foreach( j; 0 .. 100 )
+            image.data[i*image.size.w*3+j] = 255;
+        auto im = new DiImage( this, irect( 20, 20, 640, 480 ), image );
+        image.save("data/images/im2.jpg");
         reshape.connect( (r)
         {
-            plane.reshape(irect(0, 0, r.size)); 
+            im.reshape(irect(0, 0, r.size)); 
         });
         draw.connect( ()
         {
-            tex.bind();
-            info.shader.setUniform!int( "use_texture", 2 );
-            plane.draw();
+            im.draw();
         });
 
-        idle.connect( { plane.reshape( irect( baserect * zoom ) ); } );
+        idle.connect( { im.reshape( irect( 0, 0, im.rect.size * zoom ) ); } );
 
-        mouse.connect( &mouse_hook );
+        mouse.connectAlways( &mouse_hook );
     }
 }
