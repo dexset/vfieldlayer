@@ -9,7 +9,7 @@ interface Viewport
         ivec2 offset() const;
         void offset( in ivec2 );
 
-        float scale() const;
-        void scale( float );
+        float zoom() const;
+        void zoom( float );
     }
 }

@@ -12,6 +12,7 @@
         "desgl": "~master",
         "desgui": "~master",
         "derelict": "~master",
-        "desil": "~master"
+        "desil": "~master",
+        "devilwrap" : "~master"
     }
 }

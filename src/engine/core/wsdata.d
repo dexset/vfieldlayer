@@ -2,8 +2,8 @@ module engine.core.wsdata;
 
 public import engine.core.layer;
 public import engine.core.tempbuffer;
-public import engine.core.image;
 public import engine.core.setting;
+public import desil;
 
 interface WSData: SettingObject
 {
@@ -11,7 +11,7 @@ interface WSData: SettingObject
     {
         imsize_t size() const;
         TempBuffer buffer();
-        Image mask();
+        ImageFullAccess mask();
         ref Layer[] layers();
     }
 }
