@@ -1,7 +1,6 @@
 import engine;
 import desgui;
 import ui;
-import derelict.devil.il;
 
 void main( string[] args ) 
 { 
