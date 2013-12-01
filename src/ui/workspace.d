@@ -17,6 +17,7 @@ private:
     float zoom = 1.0f;
 
     ivec2 old_mpos;
+    ivec2 imsz = ivec2(640,480);
 
     void mouse_hook( in ivec2 p, in DiMouseEvent me )
     {
@@ -30,10 +31,15 @@ private:
 
         if( me.type == me.Type.WHEEL )
         {
-            zoom = zoom_lim( zoom, zoom + me.data.y * zoom * 0.2 );
-            auto lp = p - rect.pos;
-            inner += ivec2( -(lp-inner) * me.data.y * zoom );
-            im.reshape( irect( 0, 0, ivec2(640,480) * zoom ) );
+            auto lp = p - rect.pos - inner;
+            auto ip1 = lp * zoom;
+            auto old_zoom = zoom;
+            zoom = zoom_lim( zoom, zoom + me.data.y * zoom * 0.1 );
+            auto ip2 = lp * zoom;
+            auto d = ivec2( ( ip1 - ip2 ) / old_zoom );
+
+            inner += d;
+            im.reshape( irect( 0, 0, imsz * zoom ) );
         }
 
         old_mpos = p;
