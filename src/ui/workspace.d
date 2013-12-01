@@ -6,6 +6,8 @@ import desgl;
 import dvf;
 import desil.image;
 
+import devilwrap;
+
 class WorkSpace: DiWidget
 {
 private:
@@ -48,7 +50,7 @@ public:
         reshape( r );
 
 
-        auto im = Image.loadFromFile("data/images/im1.jpg");
+        auto im = loadImageFromFile("data/images/im1.jpg");
         tex = new GLTexture2D;
         auto baserect = irect( 5,5, im.size );
         tex.image( baserect.size, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, im.data.ptr );
