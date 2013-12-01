@@ -50,6 +50,7 @@ public:
             foreach( j; 0 .. 100 )
             image.data[i*image.size.w*3+j] = 255;
         auto im = new DiImage( this, irect( 20, 20, 640, 480 ), image );
+        im.aspectRatio = im.AspectRatio.FIT;
         image.save("data/images/im2.jpg");
         reshape.connect( (r)
         {
