@@ -1,14 +1,13 @@
 module engine.core.tool;
 
 public import desmath.types.vector;
-public import engine.core.image;
+public import desil;
 public import desgui.base.event;
 import engine.core.setting;
 
 interface Tool: SettingObject
 {
-    const(Image) cursor() const;
-    const(Image) effectArea() const;
+    const(ImageReadAccess) cursor() const;
     void activate();
     void deactivate();
     void mouse_eh( in ivec2 mpos, in DiMouseEvent me );

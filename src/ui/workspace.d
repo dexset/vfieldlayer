@@ -7,6 +7,7 @@ import dvf;
 import desil;
 
 import devilwrap;
+import desutil.helpers;
 
 class WorkSpace: DiWidget
 {
@@ -50,7 +51,7 @@ public:
         reshape( r );
 
         Image image = loadImageFromFile( "data/images/im1.jpg" );
-        auto im = new DiImage( this, irect( 20, 20, 640, 480 ), &image );
+        auto im = new DiImage( this, irect( 20, 20, 640, 480 ), image );
         tex = new GLTexture2D;
         auto baserect = irect( 5,5, image.size );
         tex.image( image );
@@ -68,7 +69,7 @@ public:
         });
         draw.connect( ()
         {
-            im.draw();
+            //im.draw();
         });
 
         idle.connect( { im.reshape( irect( 0, 0, im.rect.size * zoom ) ); } );

@@ -3,13 +3,12 @@ module engine.imagelayer;
 import engine.core.item;
 import engine.core.setting;
 import engine.core.layer;
-
-import engine.setting;
+import engine.core.setting;
 
 class ImageLayer: Layer
 {
 private:
-    Image data;
+    Image img;
     ivec2 pos = ivec2(0,0);
     wstring l_name;
 
@@ -17,24 +16,40 @@ private:
 
     BoolSetting visible;
 
+    class IRA: ImageReadAccess
+    { const @property ref const(Image) selfImage() { return img; } }
+
+    class IFA: ImageFullAccess
+    { 
+        @property ref const(Image) selfImage() const { return img; } 
+        protected void accessHook( size_t x, size_t y ){}
+        protected @property ref Image selfImage() { return img; } 
+    }
+
+    IRA pic_access;
+    IFA img_access;
+
 public:
 
     this( wstring Name, in imsize_t sz, in ImageType it )
     {
-        data = new Image( sz, it );
+        img.allocate( sz, it );
         l_name = Name;
 
         visible = new BoolSetting( "visible" );
         visible.typeval = true;
+
+        pic_access = new IRA;
+        img_access = new IFA;
     }
 
     @property
     {
         wstring name() const { return l_name; }
-        const(Image) pic() const { return data; }
+        const(ImageReadAccess) pic() const { return pic_access; }
 
-        irect bbox() const { return irect( pos, data.size ); }
-        Image image() { return data; }
+        irect bbox() const { return irect( pos, img.size ); }
+        ImageFullAccess image() { return img_access; }
 
         bool select() const { return is_selected; }
         void select( bool s ) { is_selected = s; }
@@ -43,16 +58,13 @@ public:
     void move( in ivec2 m ) { pos += m; }
     void setPos( in ivec2 p ) { pos = p; }
 
-    Setting[] getSettings()
-    {
-        return [ visible ];
-    }
+    Setting[] getSettings() { return [ visible ]; }
 }
 
 unittest
 {
     auto il = new ImageLayer( "test layer", imsize_t( 800, 600 ), 
-            ImageType( ComponentType.NORM_FLOAT, 1 ) );
+            ImageType( ImCompType.NORM_FLOAT, 1 ) );
 
     auto ss = il.getSettings();
 

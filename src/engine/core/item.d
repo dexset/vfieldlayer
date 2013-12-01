@@ -1,12 +1,12 @@
 module engine.core.item;
 
-public import engine.core.image;
+public import desil;
 
 interface Item
 {
     @property
     {
         wstring name() const;
-        const(Image) pic() const;
+        const(ImageReadAccess) pic() const;
     }
 }

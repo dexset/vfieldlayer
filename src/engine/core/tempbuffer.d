@@ -1,10 +1,10 @@
 module engine.core.tempbuffer;
 
-public import engine.core.image;
+public import desil;
 
 interface TempBuffer
 {
     @property imsize_t size() const;
-    Image[] getTempImages( in ImageType[] );
+    ImageFullAccess[] getTempImages( in ImageType[] );
     void clearTempImages();
 }
