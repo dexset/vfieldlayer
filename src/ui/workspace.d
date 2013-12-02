@@ -35,11 +35,14 @@ private:
             auto ip1 = lp * zoom;
             auto old_zoom = zoom;
             zoom = zoom_lim( zoom, zoom + me.data.y * zoom * 0.1 );
-            auto ip2 = lp * zoom;
-            auto d = ivec2( ( ip1 - ip2 ) / old_zoom );
+            if( zoom != old_zoom) 
+            {
+                auto ip2 = lp * zoom;
+                auto d = ivec2( ( ip1 - ip2 ) / old_zoom );
 
-            inner += d;
-            im.reshape( irect( 0, 0, imsz * zoom ) );
+                inner += d;
+                im.reshape( irect( 0, 0, imsz * zoom ) );
+            }
         }
 
         old_mpos = p;

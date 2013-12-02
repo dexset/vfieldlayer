@@ -8,6 +8,7 @@ import ui.basewidget;
 import ui.workspace;
 import ui.menu;
 import ui.toolbar;
+import ui.item;
 
 class MyButton : SimpleButton
 {
@@ -61,6 +62,31 @@ class LayerView: BaseWidget
     }
 }
 
+import engine.core;
+
+class TestItem: Item
+{
+    Image item_img;
+    wstring item_name;
+
+    class IRA: ImageReadAccess { const @property ref const(Image) selfImage() { return item_img; } }
+    IRA ira;
+
+    this( wstring N, string img_name )
+    {
+        import devilwrap;
+        item_name = N;
+        item_img = loadImageFromFile( img_name );
+        ira = new IRA;
+    }
+
+    @property
+    {
+        wstring name() const { return item_name; }
+        const(ImageReadAccess) pic() const { return ira; }
+    }
+}
+
 class MainView : DiAppWindow
 {
 private:
@@ -86,6 +112,11 @@ public:
             }
         }
 
+        auto tib = new ItemButton( menu, irect(0,0,100,30), new TestItem( "тестовый элемент"w, "data/images/im1.jpg" ) );
+        tib.onClick.connect({ tib.elem.label.visible = !tib.elem.label.visible; tib.elem.relayout(); });
+
+        menu.ll.alignDirect = menu.ll.Align.CENTER;
+
         void rl(){ menu.relayout(); }
         auto file_item = new LimSimpleButton( menu, 50, 100, irect( 0, 0, 100, 30 ), 
                 "ic", { menu.ll.alignInderect = menu.ll.Align.CENTER; rl(); } );
@@ -104,7 +135,6 @@ public:
                 "ds", { menu.ll.alignDirect = menu.ll.Align.START; rl(); } );
         auto item3 = new LimSimpleButton( menu, 50, 100, irect( 0, 0, 100, 30 ), 
                 "de", { menu.ll.alignDirect = menu.ll.Align.END; rl(); } );
-
 
         auto cw = new DiWidget( this );
         cw.layout = new DiLineLayout();
