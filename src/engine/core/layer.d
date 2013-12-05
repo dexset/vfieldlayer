@@ -10,6 +10,7 @@ interface Layer: SettingObject
     @property
     {
         irect bbox() const;
+        const(ImageReadAccess) image() const;
         ImageFullAccess image();
 
         bool select() const;

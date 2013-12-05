@@ -50,6 +50,7 @@ public:
 
         irect bbox() const { return irect( pos, img.size ); }
         ImageFullAccess image() { return img_access; }
+        const(ImageReadAccess) image() const { return img_access; }
 
         bool select() const { return is_selected; }
         void select( bool s ) { is_selected = s; }
