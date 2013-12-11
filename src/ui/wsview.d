@@ -43,7 +43,8 @@ private:
                 auto d = ivec2( ( ip1 - ip2 ) / old_zoom );
 
                 inner += d;
-                //im.reshape( irect( 0, 0, imsz * zoom ) );
+                foreach( im; imlist )
+                    im.reshape( irect( 0, 0, imsz * zoom ) );
             }
         }
 

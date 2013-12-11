@@ -161,11 +161,11 @@ public:
 
     void mouse_eh( in vec2 mpos, in DiMouseEvent me )
     { 
-        curtool.mouse_eh( mpos, me ); 
+        curtool.mouse_eh( mpos+curws.offset, me ); 
     }
 
     void keyboard_eh( in vec2 mpos, in DiKeyboardEvent ke )
     { 
-        curtool.keyboard_eh( mpos, ke ); 
+        curtool.keyboard_eh( mpos+curws.offset, ke ); 
     }
 }
