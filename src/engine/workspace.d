@@ -42,6 +42,8 @@ private:
 
     string ws_name;
 
+    bool sel = false;
+
 public:
 
     this( string Name, in imsize_t sz )
@@ -69,6 +71,9 @@ public:
         ImageFullAccess mask() { return mask_access; }
 
         ref Layer[] layers() { return layers_list; }
+
+        bool select() const { return sel; }
+        void select( bool s ) { sel = s; }
     }
 
     Setting[] getSettings() { return []; }
@@ -92,12 +97,19 @@ public:
 
     void clearTempImages() { foreach( it, img; temp_list ) img.clear(); }
 
-    void selectLayer( Layer sl )
+    void selectLayer( Layer sl, bool multi=false )
     {
         if( sl is null ) return;
         foreach( l; layers_list )
-            if( l == sl )
-                l.select = !l.select;
+            if( multi )
+            {
+                if( l == sl ) l.select = !l.select;
+            }
+            else
+            {
+                if( l == sl ) l.select = true;
+                else l.select = false;
+            }
     }
 }
 

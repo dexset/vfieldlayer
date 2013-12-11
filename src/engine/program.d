@@ -120,9 +120,9 @@ public:
                 foreach( tool; toollist )
                     if( tool == item )
                     {
-                        curtool.deactivate();
+                        curtool.select = false;
                         curtool = tool;
-                        curtool.activate();
+                        curtool.select = true;
                     }
                 break;
             case ItemType.LAYER:

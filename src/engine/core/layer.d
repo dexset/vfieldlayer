@@ -12,9 +12,6 @@ interface Layer: SettingObject
         irect bbox() const;
         const(ImageReadAccess) image() const;
         ImageFullAccess image();
-
-        bool select() const;
-        void select( bool );
     }
 
     void move( in ivec2 );
