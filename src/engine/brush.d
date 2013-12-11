@@ -41,6 +41,9 @@ protected:
     ImageReadAccess icon_ira, curs_ira;
     WSData curws;
     PositiveFloatSetting size;
+
+    bool sel = false;
+
 public:
     this( string N, WSData delegate() rws )
     {
@@ -57,6 +60,15 @@ public:
     {
         string name() const { return bname; }
         const(ImageReadAccess) pic() const { return icon_ira; }
+
+        void select( bool s ) 
+        { 
+            sel = s; 
+            if( s ) activate();
+            else deactivate();
+        }
+
+        bool select() const { return sel; }
     }
 
     Setting[] getSettings()

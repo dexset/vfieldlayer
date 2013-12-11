@@ -8,5 +8,8 @@ interface Item
     {
         string name() const;
         const(ImageReadAccess) pic() const;
+
+        bool select() const;
+        void select( bool );
     }
 }

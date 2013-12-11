@@ -66,10 +66,8 @@ public:
 
     void setLayers( Item[] llist )
     {
-        import std.stdio;
-        stderr.writeln( llist );
-
         imlist.length = llist.length;
+        childs.length = 0;
         foreach( i, ref im; imlist )
         {
             auto ll = cast(Layer)llist[i];

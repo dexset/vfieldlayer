@@ -9,6 +9,7 @@ class TestItem: Item
 {
     Image item_img;
     string item_name;
+    bool sel = false;
 
     class IRA: ImageReadAccess { const @property ref const(Image) selfImage() { return item_img; } }
     IRA ira;
@@ -25,6 +26,9 @@ class TestItem: Item
     {
         string name() const { return item_name; }
         const(ImageReadAccess) pic() const { return ira; }
+
+        void select( bool s ) { sel = s; }
+        bool select() const { return sel; }
     }
 }
 
@@ -97,7 +101,21 @@ public:
 
 class ItemButton : DiButton
 {
+protected:
     DiItem elem;
+
+    DiStyleState rstyle;
+
+    override void initStyleReaction()
+    {
+        activate.connect( { setSubStyleState( fstyle["active"] ); } );
+        release.connect( { setSubStyleState( rstyle ); } );
+
+        onPress.connect( { setSubStyleState( fstyle["press"] ); } );
+        onClick.connect( { setSubStyleState( fstyle["click"] ); } );
+    }
+
+public:
     Signal!Item itemClick;
 
     this( DiWidget par, in irect r, Item item )
@@ -106,5 +124,12 @@ class ItemButton : DiButton
         elem = new DiItem( this, irect( 0,0, r.size ), item );
         reshape.connect( (rr) { elem.reshape( irect(0,0,rect.size) ); } );
         onClick.connect({ itemClick(elem.item); });
+        rstyle = elem.item.select ? fstyle["select"] : fstyle[""];
+        update.connect(
+        {
+            rstyle = elem.item.select ? fstyle["select"] : fstyle[""];
+        });
+        update();
+        release();
     }
 }
