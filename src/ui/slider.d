@@ -12,17 +12,37 @@ enum Orientation
 }
 private:
     ColorRect!() panel;
+    ColorRect!()[] mark;
     SimpleButton slider;
-    float pmin = 0, pmax = 10, pstep = 1;
+    float pstep = 1;
+    lim_t!float lim;
     float pcurr = 0;
     Orientation orient = Orientation.HORISONTAL;
+    int ploc, cloc;
+    void checkMarks()
+    {
+        import std.math;
+        mark.length = lround(( max - min + 1 ) / pstep);
+        foreach( i, ref m; mark )
+        {
+            m = new ColorRect!()( ploc, cloc );
+            import std.stdio;
+            if( orient == Orientation.HORISONTAL )
+                m.reshape( irect( ( panel.rect.w - step * 2 ) / ( ( max - min ) / pstep ) * i, rect.h/2.0, 2, rect.h / 4 ) );
+            else
+                m.reshape( irect( 0, ( panel.rect.h + slider.rect.h + slider.rect.h / 2 ) / ( ( max - min ) / pstep ) * i, rect.w / 2, 2 ) );
+        }
+    }
 public:
     this( DiWidget par, ivec2 sz )
     {
         super(par);
+
+        lim = lim_t!float( 0, 10 );
         
-        auto ploc = info.shader.getAttribLocation( "vertex" );
-        auto cloc = info.shader.getAttribLocation( "color" );
+        ploc = info.shader.getAttribLocation( "vertex" );
+        cloc = info.shader.getAttribLocation( "color" );
+
         panel = new ColorRect!()( ploc, cloc );
 
         slider = new SimpleButton( this, irect( 0, 0, 10, sz.y ) );
@@ -40,16 +60,35 @@ public:
 
         mouse.connectAlways((p, me)
         {
-            void checkReshape( ivec2 pp )
+            void resh( ivec2 pos )
             {
-                int x, y;
-                x = ( pp.x < 0 )?0:pp.x;
-                x = ( pp.x > rect.w - slider.rect.w )?rect.w - slider.rect.w:pp.x;
-                y = ( pp.y < 0 )?0:pp.y;
-                y = ( pp.y > rect.h - slider.rect.h )?rect.h - slider.rect.h:pp.y;
+                lim_t!int l;
+                int r;
+                int sz = panel.rect.w + slider.rect.w / 2;
+                sz = cast(int)(sz / ((lim.minimum - lim.maximum)/pstep));
+
+                if( orient == Orientation.HORISONTAL )
+                {
+                    l = lim_t!int( 0, panel.rect.w - slider.rect.w );
+                    r = l( slider.rect.x, pos.x - pos.x % sz );
+                    slider.reshape( irect( r, slider.rect.y, slider.rect.size ) );
+                }
+                else
+                {
+                    l = lim_t!int( 0, panel.rect.h - slider.rect.h );
+                    r = l( slider.rect.y, pos.y );
+                    slider.reshape( irect( slider.rect.x, r, slider.rect.size ) );
+                }
+
+                if( orient == Orientation.HORISONTAL )
+                    pcurr = r / ( ( panel.rect.w - slider.rect.w ) / ( lim.maximum - lim.minimum ) );
+                else
+                    pcurr = r / ( ( panel.rect.h - slider.rect.h ) / ( lim.maximum - lim.minimum ) );
+                pcurr -= pcurr % pstep;
+
                 import std.stdio;
-                writeln( x,":", pp.x );
-                slider.reshape( irect( x, y, slider.rect.size ) );
+                writeln( pcurr );
+
             }
             if( drag && me.type == me.Type.MOTION )
             {
@@ -58,7 +97,7 @@ public:
                     pos = ivec2( p.x - slider.rect.w, 0 );
                 else
                     pos = ivec2( 0, p.y - slider.rect.h );
-                checkReshape( pos );
+                resh(pos);
             }
             else
             if( me.type == me.Type.PRESSED && me.btn == me.Button.LEFT )
@@ -68,18 +107,44 @@ public:
                     pos = ivec2( p.x - slider.rect.w, 0 );
                 else
                     pos = ivec2( 0, p.y - slider.rect.h );
-                checkReshape( pos );
+                resh(pos);
+            }
+            else
+            if( me.type == me.Type.WHEEL )
+            {
+                pcurr = lim( pcurr, pcurr + me.data.y * step );
+                ivec2 pos;
+                if( orient == Orientation.HORISONTAL )
+                {
+                    int rx = cast(int)(pcurr * ( ( panel.rect.w - slider.rect.w ) / (lim.maximum-lim.minimum) ));
+                    pos = ivec2( rx, 0 );
+                }
+                else
+                {
+                    int ry = cast(int)(pcurr * ( ( panel.rect.h - slider.rect.h ) / (lim.maximum-lim.minimum) ));
+                    pos = ivec2( 0, ry );
+                }
+                slider.reshape( irect( pos, slider.rect.size ) );
+
+                import std.stdio;
+                writeln( pcurr );
             }
         });
 
-        draw.connect( { panel.draw(); } );
+        draw.connect( 
+        { 
+            panel.draw(); 
+            foreach( m; mark )
+                m.draw();
+        });
 
         reshape.connect( (r)
         {
             if( orient == Orientation.HORISONTAL )
-                panel.reshape( irect( 0, rect.h / 2, rect.w, 2 ) );
+                panel.reshape( irect( 0, rect.h / 2, rect.w-slider.rect.w, 2 ) );
             else
-                panel.reshape( irect( rect.w / 2, 0, 2, rect.h) );
+                panel.reshape( irect( rect.w / 2, 0, 2, rect.h-slider.rect.h) );
+            checkMarks();
         });
         reshape( irect(0, 0, sz) );
 
@@ -95,12 +160,12 @@ public:
 
     @property
     {
-        void min( float v ){ pmin = v; }
-        void max( float v ){ pmax = v; }
+        void min( float v ){ lim.minimum = v; }
+        void max( float v ){ lim.maximum = v; }
         void step( float v ){ pstep = v; }
-        float min(){ return pmin; }
-        float max(){ return pmax; }
+        float min(){ return lim.minimum; }
+        float max(){ return lim.maximum; }
         float step(){ return pstep; }
-        float curr(){ return curr; }
+        float curr(){ return pcurr; }
     }
 }
