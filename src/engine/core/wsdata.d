@@ -14,4 +14,5 @@ interface WSData: SettingObject
         ImageFullAccess mask();
         ref Layer[] layers();
     }
+    Setting[] getSelectLayersSettings();
 }

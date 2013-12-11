@@ -10,7 +10,7 @@ class ImageLayer: Layer
 private:
     Image img;
     ivec2 pos = ivec2(0,0);
-    wstring l_name;
+    string l_name;
 
     bool is_selected = false;
 
@@ -31,10 +31,12 @@ private:
 
 public:
 
-    this( wstring Name, in imsize_t sz, in ImageType it )
+    this( string Name, in irect rt, in ImageType it )
     {
-        img.allocate( sz, it );
+        img.allocate( imsize_t(rt.size), it );
         l_name = Name;
+
+        pos = rt.pos;
 
         visible = new BoolSetting( "visible" );
         visible.typeval = true;
@@ -43,9 +45,12 @@ public:
         img_access = new IFA;
     }
 
+    this( string Name, in imsize_t sz, in ImageType it )
+    { this( Name, irect(0,0,sz), it ); }
+
     @property
     {
-        wstring name() const { return l_name; }
+        string name() const { return l_name; }
         const(ImageReadAccess) pic() const { return pic_access; }
 
         irect bbox() const { return irect( pos, img.size ); }

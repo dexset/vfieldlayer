@@ -7,6 +7,8 @@ import engine.core.item;
 
 enum SettingType
 {
+    VARIANT,
+
     BOOL,
     INT,
     FLOAT,
@@ -15,9 +17,12 @@ enum SettingType
     VEC4,
     COL3,
     COL4,
-    STR,
+    STRING,
 
-    STR_ARR,
+    IMSIZE,
+    IMTYPE,
+
+    STRING_ARR,
     INT_ARR,
     FLOAT_ARR,
 }
@@ -32,7 +37,7 @@ interface Setting
 
     @property 
     {
-        wstring name() const;
+        string name() const;
         SettingType type() const;
         Variant defaultValue() const;
         Variant permissiveRange() const;
@@ -47,11 +52,49 @@ interface Setting
 
 interface SettingObject: Item { Setting[] getSettings(); }
 
+final class SimpleSetting: Setting
+{
+private:
+    VarSignal sig_update;
+    string s_name;
+
+    final void update_hook( Variant v )
+    {
+        if( v.hasValue )
+            s_val = v;
+    }
+
+protected:
+    Variant s_val;
+    ref VarSignal getUpdateSignal(){ return sig_update; }
+
+public:
+    this( string Name )
+    {
+        s_name = Name;
+        sig_update.connect( &update_hook );
+        sig_update( defaultValue );
+    }
+
+    @property
+    {
+        string name() const { return s_name; }
+        Variant value() const { return s_val; }
+
+        SettingType type() const { return SettingType.VARIANT; }
+        Variant defaultValue() const { return Variant(null); }
+        Variant permissiveRange() const { return Variant(null); }
+    }
+
+    final void updateConnect( void delegate(Variant) d ) 
+    { sig_update.connect( d ); }
+}
+
 class TypeSetting(T): Setting
 {
 private:
     VarSignal sig_update;
-    wstring s_name;
+    string s_name;
 
     final void update_hook( Variant v )
     {
@@ -69,7 +112,7 @@ protected:
     ref VarSignal getUpdateSignal(){ return sig_update; }
 
 public:
-    this( wstring Name )
+    this( string Name )
     {
         s_name = Name;
         sig_update.connect( &update_hook );
@@ -80,7 +123,7 @@ public:
     {
         final 
         {
-            wstring name() const { return s_name; }
+            string name() const { return s_name; }
 
             Variant value() const { return Variant( s_val ); }
 
@@ -106,7 +149,7 @@ public:
 
 class BoolSetting: TypeSetting!bool
 {
-    this( wstring Name ) { super( Name ); }
+    this( string Name ) { super( Name ); }
 
     override @property
     {
@@ -115,6 +158,78 @@ class BoolSetting: TypeSetting!bool
         final Variant permissiveRange() const { return Variant([false,true]); }
     }
 }
+
+class PositiveFloatSetting: TypeSetting!float
+{
+    this( string Name ) { super( Name ); }
+
+    override @property
+    {
+        final SettingType type() const { return SettingType.FLOAT; }
+        Variant defaultValue() const { return Variant(0.0f); }
+        final Variant permissiveRange() const { return Variant([0.0f,float.max]); }
+    }
+}
+
+pragma( msg, "TODO: write unittest for positive float setting" );
+
+class StringSetting: TypeSetting!string
+{
+    this( string Name ) { super( Name ); }
+
+    override @property
+    {
+        final SettingType type() const { return SettingType.STRING; }
+        Variant defaultValue() const { return Variant(""); }
+        final Variant permissiveRange() const { return Variant(null); }
+    }
+}
+
+pragma( msg, "TODO: write unittest for string setting" );
+
+class ImsizeSetting: TypeSetting!imsize_t
+{
+    this( string Name ) { super( Name ); }
+
+    override @property
+    {
+        final SettingType type() const { return SettingType.IMSIZE; }
+        Variant defaultValue() const { return Variant(imsize_t(0,0)); }
+        final Variant permissiveRange() const { return Variant([imsize_t(0,0),imsize_t(size_t.max,size_t.max)]); }
+    }
+}
+
+pragma( msg, "TODO: write unittest for imsize setting" );
+
+class ImtypeSetting: TypeSetting!ImageType
+{
+    this( string Name ) { super( Name ); }
+
+    override @property
+    {
+        final SettingType type() const { return SettingType.IMTYPE; }
+        Variant defaultValue() const { return Variant( ImageType(ImCompType.UBYTE, 1) ); }
+        final Variant permissiveRange() const { return Variant(null); }
+    }
+}
+
+pragma( msg, "TODO: write unittest for imtype setting" );
+
+import desmath.types.vector;
+
+class ColorSetting: TypeSetting!col3
+{
+    this( string Name ) { super( Name ); }
+
+    override @property
+    {
+        final SettingType type() const { return SettingType.COL3; }
+        Variant defaultValue() const { return Variant(col3(0,0,0)); }
+        final Variant permissiveRange() const { return Variant([col3(0,0,0),col3(1,1,1)]); }
+    }
+}
+
+pragma( msg, "TODO: write unittest for color setting" );
 
 unittest
 {

@@ -6,7 +6,7 @@ interface Item
 {
     @property
     {
-        wstring name() const;
+        string name() const;
         const(ImageReadAccess) pic() const;
     }
 }

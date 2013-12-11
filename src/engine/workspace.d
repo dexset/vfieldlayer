@@ -40,11 +40,11 @@ private:
 
     Layer[] layers_list;
 
-    wstring ws_name;
+    string ws_name;
 
 public:
 
-    this( wstring Name, in imsize_t sz )
+    this( string Name, in imsize_t sz )
     {
         ws_name = Name;
         mask_img.allocate( sz, ImageType( ImCompType.NORM_FLOAT, 1 ) );
@@ -53,7 +53,7 @@ public:
 
     @property
     {
-        wstring name() const { return ws_name; }
+        string name() const { return ws_name; }
         const(ImageReadAccess) pic() const { return null; }
 
         ivec2 offset() const { return vp_offset; }
@@ -72,6 +72,7 @@ public:
     }
 
     Setting[] getSettings() { return []; }
+    Setting[] getSelectLayersSettings() { return []; }
 
     // TempBuffer
     ImageFullAccess[] getTempImages( in ImageType[] it_list )
@@ -90,6 +91,14 @@ public:
     }
 
     void clearTempImages() { foreach( it, img; temp_list ) img.clear(); }
+
+    void selectLayer( Layer sl )
+    {
+        if( sl is null ) return;
+        foreach( l; layers_list )
+            if( l == sl )
+                l.select = !l.select;
+    }
 }
 
 unittest

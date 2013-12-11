@@ -1,9 +1,32 @@
 module ui.item;
 
-import ui.except;
+public import engine.core;
 
+import ui.except;
 import desgui;
-import engine.core.item;
+
+class TestItem: Item
+{
+    Image item_img;
+    string item_name;
+
+    class IRA: ImageReadAccess { const @property ref const(Image) selfImage() { return item_img; } }
+    IRA ira;
+
+    this( string N, string img_name )
+    {
+        import devilwrap;
+        item_name = N;
+        item_img = loadImageFromFile( img_name );
+        ira = new IRA;
+    }
+
+    @property
+    {
+        string name() const { return item_name; }
+        const(ImageReadAccess) pic() const { return ira; }
+    }
+}
 
 class DiRectImage : DiImage
 {
@@ -27,12 +50,13 @@ class DiRectImage : DiImage
 class DiItem : DiWidget
 {
 protected:
+    import std.conv;
 
     void prepareChilds()
     {
         image = new DiRectImage( this, irect(0,0,rect.size), item.pic );
 
-        label = new DiLabel( this, irect(0,0,rect.size), item.name, DiLabel.TextAlign.LEFT );
+        label = new DiLabel( this, irect(0,0,rect.size), to!wstring(item.name), DiLabel.TextAlign.LEFT );
         label.fixH = true;
         label.height = 27;
     }
@@ -63,7 +87,7 @@ public:
 
         update.connect(
         {
-            label.setText( item.name );
+            label.setText( to!wstring(item.name) );
             image.reloadImage( item.pic );
         });
 
@@ -74,11 +98,13 @@ public:
 class ItemButton : DiButton
 {
     DiItem elem;
+    Signal!Item itemClick;
 
     this( DiWidget par, in irect r, Item item )
     {
         super( par, r );
         elem = new DiItem( this, irect( 0,0, r.size ), item );
         reshape.connect( (rr) { elem.reshape( irect(0,0,rect.size) ); } );
+        onClick.connect({ itemClick(elem.item); });
     }
 }
