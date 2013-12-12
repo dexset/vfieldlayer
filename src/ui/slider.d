@@ -15,6 +15,7 @@ private:
     ColorRect!()[] mark;
 
     DiLabel[2] extr;
+    DiLabel nout;
 
     SimpleButton slider;
     float pstep = 1;
@@ -60,6 +61,7 @@ private:
                 m.reshape( irect( rect.w/2.0, ( panel.rect.h - marksize ) / ( ( max - min ) / pstep ) * i, rect.w / 4, marksize ) );
         }
     }
+
     void checkCurrent()
     {
         update();
@@ -76,18 +78,18 @@ private:
         }
         slider.reshape( irect( pos, slider.rect.size ) );
     }
+
 public:
     this( DiWidget par, wstring name, ivec2 sz )
     {
         super(par);
-
 
         lim = lim_t!float(0, 30);
         foreach( ref ex; extr )
             ex = new DiLabel( this, irect( 0, 0, 1, 1 ), "" );
         extr[1].textAlign = DiLabel.TextAlign.RIGHT;
 
-        auto nout = new DiLabel( this, irect( 0, 0, 1, 1 ), name );
+        nout = new DiLabel( this, irect( 0, 0, 1, 1 ), name );
         nout.textAlign = DiLabel.TextAlign.CENTER;
         
         ploc = info.shader.getAttribLocation( "vertex" );
@@ -107,6 +109,13 @@ public:
                 else
                 if( me.type == me.Type.RELEASED ) drag = false;
             }
+        });
+
+        update.connect(
+        {
+            import std.string, std.conv;
+            nout.setText( to!wstring( format( "%s:% 5.2f", name, pcurr ) ) );
+
         });
         
         mouse.connectAlways((p, me)

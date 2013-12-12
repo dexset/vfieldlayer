@@ -24,7 +24,7 @@ class LLView: DiPanel
     void updateItems( Item[] llist )
     {
         ItemButton[] blist;
-        childs.length = 0;
+        clearChilds();
         foreach( layer; llist )
         {
             if( layer is null ) continue;
