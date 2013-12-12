@@ -94,6 +94,7 @@ public:
         
         mouse.connectAlways((p, me)
         {
+            auto pp = p - rect.pos;
             void resh( ivec2 pos )
             {
                 lim_t!int l;
@@ -129,9 +130,9 @@ public:
             {
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
-                    pos = ivec2( p.x - slider.rect.w / 2, 0 );
+                    pos = ivec2( pp.x - slider.rect.w / 2, 0 );
                 else
-                    pos = ivec2( 0, p.y - slider.rect.h / 2 );
+                    pos = ivec2( 0, pp.y - slider.rect.h / 2 );
                 resh(pos);
             }
             else
@@ -139,9 +140,9 @@ public:
             {
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
-                    pos = ivec2( p.x - slider.rect.w / 2, 0 );
+                    pos = ivec2( pp.x - slider.rect.w / 2, 0 );
                 else
-                    pos = ivec2( 0, p.y - slider.rect.h / 2 );
+                    pos = ivec2( 0, pp.y - slider.rect.h / 2 );
                 resh(pos);
             }
             else
