@@ -65,6 +65,7 @@ public:
     {
         super(par);
 
+
         lim = lim_t!float(0, 200);
         foreach( ref ex; extr )
             ex = new DiLabel( this, irect( 0, 0, 1, 1 ), "" );
@@ -182,6 +183,7 @@ public:
         });
 
         reshape( irect(0, 0, sz) );
+        size_lim.w.fix = true;
     }
 
     void setOrientation( Orientation o )

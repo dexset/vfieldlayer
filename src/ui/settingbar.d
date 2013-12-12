@@ -13,7 +13,7 @@ class SettingBar : DiPanel
         super(par, irect( 0, 0, 100, h ));
 
         auto tl = new DiLineLayout( DiLineLayout.Type.HORISONTAL );
-        tl.stretchInderect = false;
+        //tl.stretchInderect = false;
         tl.alignInderect = DiLineLayout.Align.START;
         tl.border = 5;
         tl.space = 5;
@@ -23,7 +23,8 @@ class SettingBar : DiPanel
 
     void loadSettings( Setting[] set )
     {
-        childs.length = 0;
+        foreach( ch; childs )
+            clear(ch);
         update();
         foreach( ref s; set )
         {
