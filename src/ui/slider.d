@@ -29,12 +29,27 @@ private:
         auto s = cast(int)(( max - min + 1 ) / pstep );
 
         if( s > rect.w / 2 )
+        {
+            mark.length = 2;
+            foreach( ref m; mark )
+                m = new ColorRect!()(ploc, cloc);
+
+            if( orient == Orientation.HORISONTAL )
+            {
+                mark[0].reshape( irect( 0, rect.h/2.0, marksize, rect.h / 4 ) );
+                mark[1].reshape( irect( panel.rect.w-marksize, rect.h/2.0, marksize, rect.h / 4 ) );
+            }
+            else
+            {
+                mark[0].reshape( irect( rect.w/2.0, 0, rect.w / 4, marksize ) );
+                mark[1].reshape( irect( rect.w/2.0, panel.rect.h-marksize, rect.w / 4, marksize ) );
+            }
+
             return;
+        }
         
         mark.length = s;
 
-        if( mark.length > rect.w / 2 )
-            return;
         foreach( i, ref m; mark )
         {
             m = new ColorRect!()( ploc, cloc );
@@ -110,9 +125,9 @@ public:
             {
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
-                    pos = ivec2( p.x - slider.rect.w, 0 );
+                    pos = ivec2( p.x - slider.rect.w / 2, 0 );
                 else
-                    pos = ivec2( 0, p.y - slider.rect.h );
+                    pos = ivec2( 0, p.y - slider.rect.h / 2 );
                 resh(pos);
             }
             else
@@ -120,9 +135,9 @@ public:
             {
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
-                    pos = ivec2( p.x - slider.rect.w, 0 );
+                    pos = ivec2( p.x - slider.rect.w / 2, 0 );
                 else
-                    pos = ivec2( 0, p.y - slider.rect.h );
+                    pos = ivec2( 0, p.y - slider.rect.h / 2 );
                 resh(pos);
             }
             else
