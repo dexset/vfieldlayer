@@ -61,14 +61,18 @@ private:
         }
     }
 public:
-    this( DiWidget par, ivec2 sz )
+    this( DiWidget par, wstring name, ivec2 sz )
     {
         super(par);
 
-        lim = lim_t!float(0, 200);
+
+        lim = lim_t!float(0, 30);
         foreach( ref ex; extr )
             ex = new DiLabel( this, irect( 0, 0, 1, 1 ), "" );
         extr[1].textAlign = DiLabel.TextAlign.RIGHT;
+
+        auto nout = new DiLabel( this, irect( 0, 0, 1, 1 ), name );
+        nout.textAlign = DiLabel.TextAlign.CENTER;
         
         ploc = info.shader.getAttribLocation( "vertex" );
         cloc = info.shader.getAttribLocation( "color" );
@@ -90,6 +94,7 @@ public:
         
         mouse.connectAlways((p, me)
         {
+            auto pp = p - rect.pos;
             void resh( ivec2 pos )
             {
                 lim_t!int l;
@@ -125,9 +130,9 @@ public:
             {
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
-                    pos = ivec2( p.x - slider.rect.w / 2, 0 );
+                    pos = ivec2( pp.x - slider.rect.w / 2, 0 );
                 else
-                    pos = ivec2( 0, p.y - slider.rect.h / 2 );
+                    pos = ivec2( 0, pp.y - slider.rect.h / 2 );
                 resh(pos);
             }
             else
@@ -135,18 +140,17 @@ public:
             {
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
-                    pos = ivec2( p.x - slider.rect.w / 2, 0 );
+                    pos = ivec2( pp.x - slider.rect.w / 2, 0 );
                 else
-                    pos = ivec2( 0, p.y - slider.rect.h / 2 );
+                    pos = ivec2( 0, pp.y - slider.rect.h / 2 );
                 resh(pos);
             }
             else
             if( me.type == me.Type.RELEASED || !grab )
                 drag = false;
-            else
             if( me.type == me.Type.WHEEL )
             {
-                pcurr = lim( pcurr, pcurr + me.data.y * step );
+                curr = lim( pcurr, pcurr + me.data.y * step );
                 update();
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
@@ -179,9 +183,11 @@ public:
             checkMarks();
             extr[0].reshape( irect( 0, 0, 50, 20 ) );
             extr[1].reshape( irect( rect.w - 50, 0, 50, 20 ) );
+            nout.reshape( irect( 0, 0, rect.w, rect.h / 2 ) );
         });
 
         reshape( irect(0, 0, sz) );
+        size_lim.w.fix = true;
     }
 
     void setOrientation( Orientation o )
@@ -201,6 +207,7 @@ public:
             extr[0].setText( to!wstring(lim.minimum) );
             checkMarks();
             curr = min;
+            update();
         }
         void max( float v )
         { 
@@ -209,9 +216,10 @@ public:
             extr[1].setText( to!wstring(lim.maximum) );
             checkMarks();
             curr = min;
+            update();
         }
-        void step( float v ){ pstep = v; curr = min; }
-        void curr( float v ){ pcurr = curr; update(); }
+        void step( float v ){ pstep = v; curr = min; update(); }
+        void curr( float v ){ pcurr = v; update(); }
         float min(){ return  lim.minimum; }
         float max(){ return  lim.maximum; }
         float step(){ return pstep; }

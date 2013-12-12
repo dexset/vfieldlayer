@@ -13,7 +13,7 @@ class SettingBar : DiPanel
         super(par, irect( 0, 0, 100, h ));
 
         auto tl = new DiLineLayout( DiLineLayout.Type.HORISONTAL );
-        tl.stretchInderect = false;
+        //tl.stretchInderect = false;
         tl.alignInderect = DiLineLayout.Align.START;
         tl.border = 5;
         tl.space = 5;
@@ -23,7 +23,8 @@ class SettingBar : DiPanel
 
     void loadSettings( Setting[] set )
     {
-        childs.length = 0;
+        foreach( ch; childs )
+            clear(ch);
         update();
         foreach( ref s; set )
         {
@@ -58,15 +59,17 @@ class SettingBar : DiPanel
 
                 case( SettingType.INT ):
                 case( SettingType.FLOAT ):
-                    auto w = new DiSlider( this, ivec2( 200, 50 ) );
+                    import std.conv;
+                    auto w = new DiSlider( this, to!wstring(s.name), ivec2( 200, 50 ) );
                     w.min = s.permissiveRange.get!(const (float []))[0];
                     w.max = s.permissiveRange.get!(const (float []))[1];
                     w.curr = (cast(TypeSetting!float)(s)).typeval;
-                    w.step = 0.1;
+                    w.step = 1;
                     auto cc = cast(TypeSetting!float)(s);
                     w.update.connect({ cc.typeval = w.curr; });
                     break;
             }
         }
+        relayout();
     }
 }
