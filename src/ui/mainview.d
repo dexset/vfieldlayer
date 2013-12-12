@@ -51,7 +51,7 @@ public:
         //program.create( program.CreateType.LAYER, 
         //        [ "name": Variant("test2"), 
         //          "size": Variant(imsize_t(800,600)),
-        //          "type": Variant(ImageType(ImCompType.UBYTE,4))
+        //          "type": Variant(ImageType(ImCompType.FLOAT,2))
         //        ] );
 
         import ui.slider;

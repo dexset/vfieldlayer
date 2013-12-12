@@ -74,7 +74,7 @@ public:
             auto ll = cast(Layer)llist[i];
             if( ll is null ) continue;
             if( im is null ) im = new DiImage( this, irect(ll.bbox) );
-            if( im is null ) im = new DiImage( this, irect(0, 0, 300, 300) );
+            //if( im is null ) im = new DiImage( this, irect(0, 0, 300, 300) );
             im.reloadImage( ll.pic );
         }
     }

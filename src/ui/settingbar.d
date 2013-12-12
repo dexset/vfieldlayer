@@ -23,53 +23,41 @@ class SettingBar : DiPanel
 
     void loadSettings( Setting[] set )
     {
-        foreach( ch; childs )
-            clear(ch);
-        update();
+        clearChilds();
+        //foreach( ch; childs )
+        //    clear(ch);
         foreach( ref s; set )
         {
             final switch(s.type)
             {
-                case( SettingType.VARIANT ):
-                    break;
-                case( SettingType.BOOL ):
-                    break;
-                case( SettingType.VEC2 ):
-                    break;
-                case( SettingType.VEC3 ):
-                    break;
-                case( SettingType.VEC4 ):
-                    break;
-                case( SettingType.COL3 ):
-                    break;
-                case( SettingType.COL4 ):
-                    break;
-                case( SettingType.STRING ):
-                    break;
-                case( SettingType.IMSIZE ):
-                    break;
-                case( SettingType.IMTYPE ):
-                    break;
-                case( SettingType.STRING_ARR ):
-                    break;
-                case( SettingType.FLOAT_ARR ):
-                    break;
-                case( SettingType.INT_ARR ):
-                    break;
+                case( SettingType.VARIANT ): break;
+                case( SettingType.BOOL ): break;
+                case( SettingType.VEC2 ): break;
+                case( SettingType.VEC3 ): break;
+                case( SettingType.VEC4 ): break;
+                case( SettingType.COL3 ): break;
+                case( SettingType.COL4 ): break;
+                case( SettingType.STRING ): break;
+                case( SettingType.IMSIZE ): break;
+                case( SettingType.IMTYPE ): break;
+                case( SettingType.STRING_ARR ): break;
+                case( SettingType.FLOAT_ARR ): break;
+                case( SettingType.INT_ARR ): break;
 
-                case( SettingType.INT ):
+                case( SettingType.INT ): break;
                 case( SettingType.FLOAT ):
                     import std.conv;
                     auto w = new DiSlider( this, to!wstring(s.name), ivec2( 200, 50 ) );
-                    w.min = s.permissiveRange.get!(const (float []))[0];
-                    w.max = s.permissiveRange.get!(const (float []))[1];
-                    w.curr = (cast(TypeSetting!float)(s)).typeval;
-                    w.step = 1;
                     auto cc = cast(TypeSetting!float)(s);
+                    w.curr = cc.typeval;
+                    w.min = s.permissiveRange.get!(const(float []))[0];
+                    w.max = s.permissiveRange.get!(const(float []))[1];
+                    w.step = 1;
                     w.update.connect({ cc.typeval = w.curr; });
-                    break;
+                break;
             }
         }
         relayout();
+        update();
     }
 }
