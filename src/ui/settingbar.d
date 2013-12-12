@@ -49,10 +49,10 @@ class SettingBar : DiPanel
                     import std.conv;
                     auto w = new DiSlider( this, to!wstring(s.name), ivec2( 200, 50 ) );
                     auto cc = cast(TypeSetting!float)(s);
-                    w.curr = cc.typeval;
                     w.min = s.permissiveRange.get!(const(float []))[0];
                     w.max = s.permissiveRange.get!(const(float []))[1];
                     w.step = 1;
+                    w.curr = cc.typeval;
                     w.update.connect({ cc.typeval = w.curr; });
                 break;
             }

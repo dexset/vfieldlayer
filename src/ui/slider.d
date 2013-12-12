@@ -62,6 +62,23 @@ private:
         }
     }
 
+    void checkCurrent()
+    {
+        update();
+        ivec2 pos;
+        if( orient == Orientation.HORISONTAL )
+        {
+            int rx = cast(int)(pcurr * ( ( panel.rect.w - slider.rect.w ) / (lim.maximum-lim.minimum) ));
+            pos = ivec2( rx, 0 );
+        }
+        else
+        {
+            int ry = cast(int)(pcurr * ( ( panel.rect.h - slider.rect.h ) / (lim.maximum-lim.minimum) ));
+            pos = ivec2( 0, ry );
+        }
+        slider.reshape( irect( pos, slider.rect.size ) );
+    }
+
 public:
     this( DiWidget par, wstring name, ivec2 sz )
     {
@@ -159,19 +176,7 @@ public:
             if( me.type == me.Type.WHEEL )
             {
                 curr = lim( pcurr, pcurr + me.data.y * step );
-                update();
-                ivec2 pos;
-                if( orient == Orientation.HORISONTAL )
-                {
-                    int rx = cast(int)(pcurr * ( ( panel.rect.w - slider.rect.w ) / (lim.maximum-lim.minimum) ));
-                    pos = ivec2( rx, 0 );
-                }
-                else
-                {
-                    int ry = cast(int)(pcurr * ( ( panel.rect.h - slider.rect.h ) / (lim.maximum-lim.minimum) ));
-                    pos = ivec2( 0, ry );
-                }
-                slider.reshape( irect( pos, slider.rect.size ) );
+                checkCurrent();
             }
         });
 
@@ -227,7 +232,7 @@ public:
             update();
         }
         void step( float v ){ pstep = v; curr = min; update(); }
-        void curr( float v ){ pcurr = v; update(); }
+        void curr( float v ){ pcurr = v; checkCurrent(); }
         float min(){ return  lim.minimum; }
         float max(){ return  lim.maximum; }
         float step(){ return pstep; }
