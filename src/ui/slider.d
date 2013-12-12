@@ -110,9 +110,9 @@ public:
             {
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
-                    pos = ivec2( p.x - slider.rect.w, 0 );
+                    pos = ivec2( p.x - slider.rect.w / 2, 0 );
                 else
-                    pos = ivec2( 0, p.y - slider.rect.h );
+                    pos = ivec2( 0, p.y - slider.rect.h / 2 );
                 resh(pos);
             }
             else
@@ -120,9 +120,9 @@ public:
             {
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
-                    pos = ivec2( p.x - slider.rect.w, 0 );
+                    pos = ivec2( p.x - slider.rect.w / 2, 0 );
                 else
-                    pos = ivec2( 0, p.y - slider.rect.h );
+                    pos = ivec2( 0, p.y - slider.rect.h / 2 );
                 resh(pos);
             }
             else

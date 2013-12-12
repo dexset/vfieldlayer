@@ -25,7 +25,7 @@ class SettingBar : DiPanel
     {
         childs.length = 0;
         update();
-        foreach( s; set )
+        foreach( ref s; set )
         {
             final switch(s.type)
             {
@@ -63,6 +63,7 @@ class SettingBar : DiPanel
                     w.max = s.permissiveRange.get!(const (float []))[1];
                     w.curr = (cast(TypeSetting!float)(s)).typeval;
                     w.step = 0.1;
+                    //w.update.connect({ (cast(TypeSetting!float)(s)).typeval = w.curr; });
                     break;
             }
         }
