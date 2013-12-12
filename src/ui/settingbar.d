@@ -59,7 +59,8 @@ class SettingBar : DiPanel
 
                 case( SettingType.INT ):
                 case( SettingType.FLOAT ):
-                    auto w = new DiSlider( this, ivec2( 200, 50 ) );
+                    import std.conv;
+                    auto w = new DiSlider( this, to!wstring(s.name), ivec2( 200, 50 ) );
                     w.min = s.permissiveRange.get!(const (float []))[0];
                     w.max = s.permissiveRange.get!(const (float []))[1];
                     w.curr = (cast(TypeSetting!float)(s)).typeval;

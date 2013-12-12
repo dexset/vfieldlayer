@@ -61,15 +61,18 @@ private:
         }
     }
 public:
-    this( DiWidget par, ivec2 sz )
+    this( DiWidget par, wstring name, ivec2 sz )
     {
         super(par);
 
 
-        lim = lim_t!float(0, 200);
+        lim = lim_t!float(0, 30);
         foreach( ref ex; extr )
             ex = new DiLabel( this, irect( 0, 0, 1, 1 ), "" );
         extr[1].textAlign = DiLabel.TextAlign.RIGHT;
+
+        auto nout = new DiLabel( this, irect( 0, 0, 1, 1 ), name );
+        nout.textAlign = DiLabel.TextAlign.CENTER;
         
         ploc = info.shader.getAttribLocation( "vertex" );
         cloc = info.shader.getAttribLocation( "color" );
@@ -180,6 +183,7 @@ public:
             checkMarks();
             extr[0].reshape( irect( 0, 0, 50, 20 ) );
             extr[1].reshape( irect( rect.w - 50, 0, 50, 20 ) );
+            nout.reshape( irect( 0, 0, rect.w, rect.h / 2 ) );
         });
 
         reshape( irect(0, 0, sz) );
