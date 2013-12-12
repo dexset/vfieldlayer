@@ -98,7 +98,7 @@ public:
         panel = new ColorRect!()( ploc, cloc );
 
         slider = new SimpleButton( this, irect( 0, 0, 10, sz.y ) );
-        slider.activate();
+        slider.release();
         auto drag = false;
 
         slider.mouse.connect( (p, me)
