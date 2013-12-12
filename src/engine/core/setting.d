@@ -161,13 +161,21 @@ class BoolSetting: TypeSetting!bool
 
 class PositiveFloatSetting: TypeSetting!float
 {
-    this( string Name ) { super( Name ); }
+private:
+    float min, max;
+public:
+    this( string Name, float mn = 0, float mx = 1 ) 
+    { 
+        super( Name ); 
+        min = mn;
+        max = mx;
+    }
 
     override @property
     {
         final SettingType type() const { return SettingType.FLOAT; }
         Variant defaultValue() const { return Variant(0.0f); }
-        final Variant permissiveRange() const { return Variant([0.0f,float.max]); }
+        final Variant permissiveRange() const { return Variant([min,max]); }
     }
 }
 
@@ -217,15 +225,15 @@ pragma( msg, "TODO: write unittest for imtype setting" );
 
 import desmath.types.vector;
 
-class ColorSetting: TypeSetting!col3
+class ColorSetting: TypeSetting!col4
 {
     this( string Name ) { super( Name ); }
 
     override @property
     {
-        final SettingType type() const { return SettingType.COL3; }
-        Variant defaultValue() const { return Variant(col3(0,0,0)); }
-        final Variant permissiveRange() const { return Variant([col3(0,0,0),col3(1,1,1)]); }
+        final SettingType type() const { return SettingType.COL4; }
+        Variant defaultValue() const { return Variant(col4(0,0,0,1)); }
+        final Variant permissiveRange() const { return Variant([col4(0,0,0,1),col4(1,1,1,0)]); }
     }
 }
 

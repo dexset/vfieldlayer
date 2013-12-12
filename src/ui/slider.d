@@ -13,24 +13,36 @@ enum Orientation
 private:
     ColorRect!() panel;
     ColorRect!()[] mark;
+
+    DiLabel[2] extr;
+
     SimpleButton slider;
     float pstep = 1;
     lim_t!float lim;
     float pcurr = 0;
     Orientation orient = Orientation.HORISONTAL;
     int ploc, cloc;
+
+    int marksize = 1;
     void checkMarks()
     {
-        import std.math;
-        mark.length = lround(( max - min + 1 ) / pstep);
+        auto s = cast(int)(( max - min + 1 ) / pstep );
+
+        if( s > rect.w / 2 )
+            return;
+        
+        mark.length = s;
+
+        if( mark.length > rect.w / 2 )
+            return;
         foreach( i, ref m; mark )
         {
             m = new ColorRect!()( ploc, cloc );
             import std.stdio;
             if( orient == Orientation.HORISONTAL )
-                m.reshape( irect( ( panel.rect.w - step * 2 ) / ( ( max - min ) / pstep ) * i, rect.h/2.0, 2, rect.h / 4 ) );
+                m.reshape( irect( ( panel.rect.w - marksize ) / ( ( max - min ) / pstep ) * i, rect.h/2.0, marksize, rect.h / 4 ) );
             else
-                m.reshape( irect( 0, ( panel.rect.h + slider.rect.h + slider.rect.h / 2 ) / ( ( max - min ) / pstep ) * i, rect.w / 2, 2 ) );
+                m.reshape( irect( rect.w/2.0, ( panel.rect.h - marksize ) / ( ( max - min ) / pstep ) * i, rect.w / 4, marksize ) );
         }
     }
 public:
@@ -38,7 +50,10 @@ public:
     {
         super(par);
 
-        lim = lim_t!float( 0, 10 );
+        lim = lim_t!float(0, 200);
+        foreach( ref ex; extr )
+            ex = new DiLabel( this, irect( 0, 0, 1, 1 ), "" );
+        extr[1].textAlign = DiLabel.TextAlign.RIGHT;
         
         ploc = info.shader.getAttribLocation( "vertex" );
         cloc = info.shader.getAttribLocation( "color" );
@@ -57,7 +72,7 @@ public:
                 if( me.type == me.Type.RELEASED ) drag = false;
             }
         });
-
+        
         mouse.connectAlways((p, me)
         {
             void resh( ivec2 pos )
@@ -65,12 +80,16 @@ public:
                 lim_t!int l;
                 int r;
                 int sz = panel.rect.w + slider.rect.w / 2;
-                sz = cast(int)(sz / ((lim.minimum - lim.maximum)/pstep));
+                sz = cast(int)(sz / ((lim.maximum - lim.minimum)/pstep));
 
                 if( orient == Orientation.HORISONTAL )
                 {
                     l = lim_t!int( 0, panel.rect.w - slider.rect.w );
-                    r = l( slider.rect.x, pos.x - pos.x % sz );
+                    if( sz > 0 )
+                        r = l( slider.rect.x, pos.x % sz );
+                    else
+                        r = l( slider.rect.x, pos.x );
+
                     slider.reshape( irect( r, slider.rect.y, slider.rect.size ) );
                 }
                 else
@@ -85,10 +104,7 @@ public:
                 else
                     pcurr = r / ( ( panel.rect.h - slider.rect.h ) / ( lim.maximum - lim.minimum ) );
                 pcurr -= pcurr % pstep;
-
-                import std.stdio;
-                writeln( pcurr );
-
+                update();
             }
             if( drag && me.type == me.Type.MOTION )
             {
@@ -110,9 +126,13 @@ public:
                 resh(pos);
             }
             else
+            if( me.type == me.Type.RELEASED || !grab )
+                drag = false;
+            else
             if( me.type == me.Type.WHEEL )
             {
                 pcurr = lim( pcurr, pcurr + me.data.y * step );
+                update();
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
                 {
@@ -125,9 +145,6 @@ public:
                     pos = ivec2( 0, ry );
                 }
                 slider.reshape( irect( pos, slider.rect.size ) );
-
-                import std.stdio;
-                writeln( pcurr );
             }
         });
 
@@ -145,9 +162,11 @@ public:
             else
                 panel.reshape( irect( rect.w / 2, 0, 2, rect.h-slider.rect.h) );
             checkMarks();
+            extr[0].reshape( irect( 0, 0, 50, 20 ) );
+            extr[1].reshape( irect( rect.w - 50, 0, 50, 20 ) );
         });
-        reshape( irect(0, 0, sz) );
 
+        reshape( irect(0, 0, sz) );
     }
 
     void setOrientation( Orientation o )
@@ -160,11 +179,26 @@ public:
 
     @property
     {
-        void min( float v ){ lim.minimum = v; }
-        void max( float v ){ lim.maximum = v; }
-        void step( float v ){ pstep = v; }
-        float min(){ return lim.minimum; }
-        float max(){ return lim.maximum; }
+        void min( float v )
+        { 
+            lim.minimum = v; 
+            import std.conv;
+            extr[0].setText( to!wstring(lim.minimum) );
+            checkMarks();
+            curr = min;
+        }
+        void max( float v )
+        { 
+            lim.maximum = v; 
+            import std.conv;
+            extr[1].setText( to!wstring(lim.maximum) );
+            checkMarks();
+            curr = min;
+        }
+        void step( float v ){ pstep = v; curr = min; }
+        void curr( float v ){ pcurr = curr; update(); }
+        float min(){ return  lim.minimum; }
+        float max(){ return  lim.maximum; }
         float step(){ return pstep; }
         float curr(){ return pcurr; }
     }

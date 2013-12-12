@@ -53,7 +53,7 @@ public:
         icon_ira = new PointerIRA( &icon );
         curs_ira = new PointerIRA( &curs );
 
-        size = new PositiveFloatSetting( "size" );
+        size = new PositiveFloatSetting( "size", 0, 200 );
     }
 
     @property
@@ -91,7 +91,7 @@ protected:
 
     Layer work;
     bool draw_state = false;
-    alias vec!(3,ubyte,"rgb") bcol3;
+    alias vec!(4,ubyte,"rgba") bcol4;
 
     void draw(T)( in vec2 mpos )
         if( is(T==ubyte) || is(T==float) )
@@ -100,12 +100,12 @@ protected:
 
         static if( is(T==ubyte) )
         {
-            alias bcol3 trueColor;
-            auto clr = bcol3( color.typeval * 255 );
+            alias bcol4 trueColor;
+            auto clr = bcol4( color.typeval * 255 );
         }
         else static if( is(T==float) )
         {
-            alias col3 trueColor;
+            alias col4 trueColor;
             auto clr = color.typeval;
         }
 
@@ -126,7 +126,7 @@ public:
     {
         super( "color_brush", rws );
         color = new ColorSetting( "color" );
-        color.typeval = col3(1,1,1);
+        color.typeval = col4(1,1,1,1);
         size.typeval = 10;
 
         import devilwrap;
@@ -158,7 +158,7 @@ public:
                                 BrushUserException.Reason.MULTIPLELAYER );
                     }
                 }
-                if( work.image.type.channels != 3 ) throw new BrushUserException( "bad layer image component count", BrushUserException.Reason.BADIMGTYPE );
+                if( work.image.type.channels != 4 ) throw new BrushUserException( "bad layer image component count", BrushUserException.Reason.BADIMGTYPE );
             }
             else if( me.type == me.Type.RELEASED && me.btn == me.Button.LEFT )
             {

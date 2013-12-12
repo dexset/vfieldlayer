@@ -43,25 +43,28 @@ public:
         program.create( program.CreateType.LAYER, 
                 [ "name": Variant("test"), 
                   "size": Variant(imsize_t(800,600)),
-                  "type": Variant(ImageType(ImCompType.UBYTE,3))
+                  "type": Variant(ImageType(ImCompType.UBYTE,4))
                 ] );
 
         setbar = new SettingBar( this, 50 );
 
-        /// TODO TEST
-        program.create( program.CreateType.LAYER, 
-                [ "name": Variant("test2"), 
-                  "size": Variant(imsize_t(800,600)),
-                  "type": Variant(ImageType(ImCompType.UBYTE,3))
-                ] );
+        //program.create( program.CreateType.LAYER, 
+        //        [ "name": Variant("test2"), 
+        //          "size": Variant(imsize_t(800,600)),
+        //          "type": Variant(ImageType(ImCompType.UBYTE,4))
+        //        ] );
 
         import ui.slider;
-        auto slide = new DiSlider( setbar, ivec2(200, 30) );
-        ///
         wsbar = new WSBar( this );
+        //import ui.colorpick;
+        //auto cpick = new DiColorPicker( wsbar, irect( 0, 0, 100, 100 ) );
 
         toolbar = new ToolBar( wsbar, 40 );
-        toolbar.toolSelect.connect( &updateTool );
+        toolbar.toolSelect.connect( (it)
+        {
+            updateTool(it);
+            setbar.loadSettings( program.getSettings( program.SettingType.TOOL ) );
+        });
         auto tools = program.getList( program.ItemType.TOOL );
         foreach( tool; tools ) toolbar.addItem( tool );
 
@@ -85,7 +88,6 @@ public:
         { 
             program.mouse_eh(p,m); 
             wsview.setLayers( program.getList( program.ItemType.LAYER ) );
-            //wsview.update();
             llview.update();
         });
         llview.layerSelect.connect( (item)
