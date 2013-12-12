@@ -69,5 +69,6 @@ class SettingBar : DiPanel
                     break;
             }
         }
+        relayout();
     }
 }
