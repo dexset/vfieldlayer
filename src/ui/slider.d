@@ -147,10 +147,9 @@ public:
             else
             if( me.type == me.Type.RELEASED || !grab )
                 drag = false;
-            else
             if( me.type == me.Type.WHEEL )
             {
-                pcurr = lim( pcurr, pcurr + me.data.y * step );
+                curr = lim( pcurr, pcurr + me.data.y * step );
                 update();
                 ivec2 pos;
                 if( orient == Orientation.HORISONTAL )
@@ -207,6 +206,7 @@ public:
             extr[0].setText( to!wstring(lim.minimum) );
             checkMarks();
             curr = min;
+            update();
         }
         void max( float v )
         { 
@@ -215,9 +215,10 @@ public:
             extr[1].setText( to!wstring(lim.maximum) );
             checkMarks();
             curr = min;
+            update();
         }
-        void step( float v ){ pstep = v; curr = min; }
-        void curr( float v ){ pcurr = curr; update(); }
+        void step( float v ){ pstep = v; curr = min; update(); }
+        void curr( float v ){ pcurr = v; update(); }
         float min(){ return  lim.minimum; }
         float max(){ return  lim.maximum; }
         float step(){ return pstep; }

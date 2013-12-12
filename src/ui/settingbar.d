@@ -64,7 +64,7 @@ class SettingBar : DiPanel
                     w.min = s.permissiveRange.get!(const (float []))[0];
                     w.max = s.permissiveRange.get!(const (float []))[1];
                     w.curr = (cast(TypeSetting!float)(s)).typeval;
-                    w.step = 0.1;
+                    w.step = 1;
                     auto cc = cast(TypeSetting!float)(s);
                     w.update.connect({ cc.typeval = w.curr; });
                     break;
