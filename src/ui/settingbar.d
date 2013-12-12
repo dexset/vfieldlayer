@@ -63,8 +63,8 @@ class SettingBar : DiPanel
                     auto w = new DiSlider( this, to!wstring(s.name), ivec2( 200, 50 ) );
                     w.min = s.permissiveRange.get!(const (float []))[0];
                     w.max = s.permissiveRange.get!(const (float []))[1];
-                    w.curr = (cast(TypeSetting!float)(s)).typeval;
                     w.step = 1;
+                    w.curr = (cast(TypeSetting!float)(s)).typeval;
                     auto cc = cast(TypeSetting!float)(s);
                     w.update.connect({ cc.typeval = w.curr; });
                     break;
