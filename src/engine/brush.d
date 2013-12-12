@@ -54,6 +54,7 @@ public:
         curs_ira = new PointerIRA( &curs );
 
         size = new PositiveFloatSetting( "size", 0, 200 );
+        size.typeval = 10;
     }
 
     @property
@@ -114,7 +115,7 @@ protected:
         for( float x = -sz; x < sz; x+=1 )
             for( float y = -sz; y < sz; y+= 1 )
             {
-                if( x*x + y*y > sz ) continue;
+                if( x*x + y*y > sz * sz ) continue;
                 auto p = imcrd_t( lp.x+x, lp.y+y );
                 if( ivec2(p) in work.bbox )
                 work.image.access!trueColor(p) = clr;
@@ -127,7 +128,6 @@ public:
         super( "color_brush", rws );
         color = new ColorSetting( "color" );
         color.typeval = col4(1,1,1,1);
-        size.typeval = 10;
 
         import devilwrap;
         icon = loadImageFromFile( "data/images/brush.png" );
@@ -158,7 +158,7 @@ public:
                                 BrushUserException.Reason.MULTIPLELAYER );
                     }
                 }
-                if( work.image.type.channels != 4 ) throw new BrushUserException( "bad layer image component count", BrushUserException.Reason.BADIMGTYPE );
+                if( work.image.type.channels != 4 ) throw new BrushUserException( "bad layer image component count, must be 4", BrushUserException.Reason.BADIMGTYPE );
             }
             else if( me.type == me.Type.RELEASED && me.btn == me.Button.LEFT )
             {
@@ -174,6 +174,101 @@ public:
                 {
                     case ImCompType.UBYTE: draw!ubyte( mpos ); break;
                     case ImCompType.NORM_FLOAT: draw!float( mpos ); break;
+                    default: throw new BrushUserException( "bad layer image type", 
+                                     BrushUserException.Reason.BADIMGTYPE );
+                }
+            }
+        }
+
+        void keyboard_eh( in vec2 mpos, in DiKeyboardEvent ke ) { }
+    }
+}
+
+class TestVectorBrush : Brush
+{
+protected:
+    Layer work;
+    bool draw_state = false;
+    PositiveFloatSetting power;
+
+    vec2 old_pos;
+    void draw( in vec2 mpos )
+    {
+        if( old_pos )
+        {
+            auto sz = size.typeval;
+            auto pw = power.typeval;
+
+            auto delta = mpos - old_pos;
+
+            auto lp = mpos - vec2(work.bbox.pos);
+
+            for( float x = -sz; x < sz; x+=1 )
+                for( float y = -sz; y < sz; y+= 1 )
+                {
+                    auto ll = x*x + y*y;
+                    auto dc = 1.0f / (ll + 1.0f); 
+                    if( ll > sz * sz ) continue;
+                    auto p = imcrd_t( lp.x+x, lp.y+y );
+                    if( ivec2(p) in work.bbox )
+                        work.image.access!vec2(p) = delta * pw * dc;
+                }
+        }
+
+        old_pos = mpos;
+    }
+
+public:
+    this( WSData delegate() rws )
+    {
+        super( "vector_brush", rws );
+        power = new PositiveFloatSetting( "power", 0, 200 );
+        power.typeval = 10;
+
+        import devilwrap;
+        icon = loadImageFromFile( "data/images/brush_vec.png" );
+    }
+
+    override
+    {
+        Setting[] getSettings()
+        { return super.getSettings() ~ power; }
+
+        void mouse_eh( in vec2 mpos, in DiMouseEvent me )
+        {
+            if( curws is null )
+                throw new BrushUserException( "no current workspace", BrushUserException.Reason.NOWORKSPACE );
+
+            if( me.type == me.Type.PRESSED && me.btn == me.Button.LEFT )
+            {
+                draw_state = true;
+                work = null;
+                auto ll = curws.layers;
+
+                foreach( l; ll )
+                {
+                    if( l.select )
+                    {
+                        if( work is null ) work = l;
+                        else throw new BrushUserException( "drawing on multiple layers are not available", 
+                                BrushUserException.Reason.MULTIPLELAYER );
+                    }
+                }
+                if( work.image.type.channels != 2 ) throw new BrushUserException( "bad layer image component count, must me 2", BrushUserException.Reason.BADIMGTYPE );
+            }
+            else if( me.type == me.Type.RELEASED && me.btn == me.Button.LEFT )
+            {
+                draw_state = false;
+                work = null;
+            }
+
+            if( draw_state )
+            {
+                if( work is null ) throw new BrushUserException( "no select layers", BrushUserException.Reason.NOLAYER );
+
+                switch( work.image.type.comp )
+                {
+                    case ImCompType.FLOAT: draw( mpos ); break;
                     default: throw new BrushUserException( "bad layer image type", 
                                      BrushUserException.Reason.BADIMGTYPE );
                 }

@@ -69,6 +69,9 @@ public:
 
     this()
     {
+        curtool = new TestVectorBrush({ return cast(WSData)curws; });
+        toollist ~= curtool;
+
         curtool = new TestColorBrush({ return cast(WSData)curws; });
         toollist ~= curtool;
     }
